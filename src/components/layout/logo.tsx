@@ -7,7 +7,7 @@ interface LogoProps {
   className?: string;
 }
 
-/** FixMate wordmark. Designed for dark backgrounds (navbar, footer). */
+
 export function Logo({ className }: LogoProps) {
   return (
     <Link
@@ -18,7 +18,7 @@ export function Logo({ className }: LogoProps) {
         className,
       )}
     >
-      <span className="flex size-10 items-center justify-center rounded-[13px] bg-linear-to-br from-brand-orange via-brand-orange-light to-brand-orange-deep text-white shadow-[0_0_18px_-2px_rgba(250,127,61,0.65)]">
+      <span className="flex size-10 items-center justify-center rounded-[13px] bg-linear-to-br from-brand-orange via-brand-orange-light to-brand-orange-deep text-white shadow-lg shadow-brand-orange/50">
         <Wrench className="size-5 -rotate-12" aria-hidden="true" />
       </span>
       <span className="text-xl font-bold tracking-tight">

@@ -29,7 +29,7 @@ export async function Footer() {
 
   return (
     <footer className="bg-brand-navy">
-      <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+      <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-12">
         <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr_1.3fr_1.2fr] lg:gap-0 lg:divide-x lg:divide-white/10">
       
           <div className="lg:pr-8">
