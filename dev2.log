@@ -1,0 +1,161 @@
+$ next dev
+Γû▓ Next.js 16.4.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.8:3000
+- Environments: .env
+Γ£ô Ready in 286ms
+Γ£ô Running next.config.ts took 28ms
+- Cache Components enabled
+- Partial Prefetching enabled
+- Experiments (use with caution):
+  Γ£ô agentFeedback
+
+{
+  name: 'Mohammad Walid',
+  email: 'teamspark44@gmail.com',
+  emailVerified: false,
+  image: undefined,
+  createdAt: 2026-11-18T14:37:04.886Z,
+  updatedAt: 2026-11-18T14:37:04.886Z,
+  phone: '01533863245',
+  role: 'customer',
+  id: '6afdb810003874a48e1bfe45'
+}
+ GET / 200 in 3.7s (next.js: 236ms, application-code: 3.5s)
+{
+  name: 'Mohammad Walid',
+  email: 'teamspark44@gmail.com',
+  emailVerified: false,
+  image: undefined,
+  createdAt: 2026-11-18T14:37:04.886Z,
+  updatedAt: 2026-11-18T14:37:04.886Z,
+  phone: '01533863245',
+  role: 'customer',
+  id: '6afdb810003874a48e1bfe45'
+}
+{
+  name: 'Mohammad Walid',
+  email: 'teamspark44@gmail.com',
+  emailVerified: false,
+  image: undefined,
+  createdAt: 2026-11-18T14:37:04.886Z,
+  updatedAt: 2026-11-18T14:37:04.886Z,
+  phone: '01533863245',
+  role: 'customer',
+  id: '6afdb810003874a48e1bfe45'
+}
+Error: Route "/": Next.js encountered the unstable value `new Date()` while prerendering.
+
+This value can change between renders, so it must be either prerendered or computed later.
+
+Ways to fix this:
+  - [dynamic] Render at request time by adding a dynamic data access (e.g. `await connection()`) before this call
+  - [cache] Prerender and cache the value with `"use cache"`
+  - [client] Render the value on the client with `"use client"`
+  - [measure] If the value is for telemetry, use a timing API such as `performance.now()`
+
+Learn more: https://nextjs.org/docs/messages/blocking-prerender-current-time
+    at async Navbar (src\components\layout\navbar.tsx:24:19)
+    at RootLayout (src\app\layout.tsx:31:9)
+  22 |
+  23 | export async function Navbar() {
+> 24 |   const session = await auth.api.getSession({
+     |                   ^
+  25 |     headers: await headers() // you need to pass the headers object.
+  26 |   })
+  27 |   console.log(session?.user);
+ GET /settings 404 in 393ms (next.js: 370ms, application-code: 23ms)
+{
+  name: 'Mohammad Walid',
+  email: 'teamspark44@gmail.com',
+  emailVerified: false,
+  image: undefined,
+  createdAt: 2026-11-18T14:37:04.886Z,
+  updatedAt: 2026-11-18T14:37:04.886Z,
+  phone: '01533863245',
+  role: 'customer',
+  id: '6afdb810003874a48e1bfe45'
+}
+ GET /settings 404 in 667ms (next.js: 10ms, application-code: 657ms)
+ GET /dashboard 404 in 17ms (next.js: 6ms, application-code: 11ms)
+Error: Route "/_not-found": Next.js encountered uncached data during prerendering.
+
+`fetch(...)` or `connection()` accessed outside of `<Suspense>` prevents the route from being prerendered, blocking the page load and leading to a slower user experience.
+
+Ways to fix this:
+  - [stream] Provide a placeholder with `<Suspense fallback={...}>` around the data access
+  - [cache] Cache the data access with `"use cache"` (does not apply to `connection()`)
+  - [block] Set `export const instant = false` to allow a blocking route
+
+Learn more: https://nextjs.org/docs/messages/blocking-prerender-dynamic
+    at Navbar (src\components\layout\navbar.tsx:24:19)
+    at RootLayout (src\app\layout.tsx:31:9)
+  22 |
+  23 | export async function Navbar() {
+> 24 |   const session = await auth.api.getSession({
+     |                   ^
+  25 |     headers: await headers() // you need to pass the headers object.
+  26 |   })
+  27 |   console.log(session?.user);
+{
+  name: 'Mohammad Walid',
+  email: 'teamspark44@gmail.com',
+  emailVerified: false,
+  image: undefined,
+  createdAt: 2026-11-18T14:37:04.886Z,
+  updatedAt: 2026-11-18T14:37:04.886Z,
+  phone: '01533863245',
+  role: 'customer',
+  id: '6afdb810003874a48e1bfe45'
+}
+ GET /dashboard 404 in 669ms (next.js: 9ms, application-code: 660ms)
+Error: Route "/_not-found": Next.js encountered uncached data during prerendering.
+
+`fetch(...)` or `connection()` accessed outside of `<Suspense>` prevents the route from being prerendered, blocking the page load and leading to a slower user experience.
+
+Ways to fix this:
+  - [stream] Provide a placeholder with `<Suspense fallback={...}>` around the data access
+  - [cache] Cache the data access with `"use cache"` (does not apply to `connection()`)
+  - [block] Set `export const instant = false` to allow a blocking route
+
+Learn more: https://nextjs.org/docs/messages/blocking-prerender-dynamic
+    at Navbar (src\components\layout\navbar.tsx:24:19)
+    at RootLayout (src\app\layout.tsx:31:9)
+  22 |
+  23 | export async function Navbar() {
+> 24 |   const session = await auth.api.getSession({
+     |                   ^
+  25 |     headers: await headers() // you need to pass the headers object.
+  26 |   })
+  27 |   console.log(session?.user);
+{
+  name: 'Mohammad Walid',
+  email: 'teamspark44@gmail.com',
+  emailVerified: false,
+  image: undefined,
+  createdAt: 2026-11-18T14:37:04.886Z,
+  updatedAt: 2026-11-18T14:37:04.886Z,
+  phone: '01533863245',
+  role: 'customer',
+  id: '6afdb810003874a48e1bfe45'
+}
+ GET / 200 in 653ms (next.js: 2ms, application-code: 651ms)
+Error: Route "/": Next.js encountered uncached data during prerendering.
+
+`fetch(...)` or `connection()` accessed outside of `<Suspense>` prevents the route from being prerendered, blocking the page load and leading to a slower user experience.
+
+Ways to fix this:
+  - [stream] Provide a placeholder with `<Suspense fallback={...}>` around the data access
+  - [cache] Cache the data access with `"use cache"` (does not apply to `connection()`)
+  - [block] Set `export const instant = false` to allow a blocking route
+
+Learn more: https://nextjs.org/docs/messages/blocking-prerender-dynamic
+    at Navbar (src\components\layout\navbar.tsx:24:19)
+    at RootLayout (src\app\layout.tsx:31:9)
+  22 |
+  23 | export async function Navbar() {
+> 24 |   const session = await auth.api.getSession({
+     |                   ^
+  25 |     headers: await headers() // you need to pass the headers object.
+  26 |   })
+  27 |   console.log(session?.user);

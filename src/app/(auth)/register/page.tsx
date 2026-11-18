@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, Phone, User, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Phone, User, ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,9 +18,60 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [agree, setAgree] = useState(false);
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    phone: false,
+    password: false,
+    terms: false,
+  });
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const markTouched = (field: keyof typeof touched) =>
+    setTouched((prev) => ({ ...prev, [field]: true }));
+
+  // Field validation rules
+  const validate = (
+    name: string,
+    email: string,
+    phone: string,
+    password: string,
+    agreed: boolean
+  ) => {
+    const next: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      password?: string;
+      terms?: string;
+    } = {};
+    if (!name.trim()) next.name = "Full name is required";
+    if (!email.trim()) next.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      next.email = "Enter a valid email address";
+    if (!phone.trim()) next.phone = "Phone number is required";
+    if (!password) next.password = "Password is required";
+    else if (password.length < 6)
+      next.password = "Password must be at least 6 characters";
+    else if (!/[A-Z]/.test(password))
+      next.password = "Password needs at least one uppercase letter";
+    else if (!/[a-z]/.test(password))
+      next.password = "Password needs at least one lowercase letter";
+    if (!agreed) next.terms = "You must agree to the Terms of Service";
+    return next;
+  };
+
+  const errors = validate(fullName, email, phone, password, agree);
+  const showError = (field: keyof typeof errors) =>
+    submitAttempted || touched[field] ? errors[field] : undefined;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+  setSubmitAttempted(true);
+
+  // Do not submit while any field is invalid
+  if (Object.keys(errors).length > 0) return;
+
   const formData = new FormData(e.currentTarget);
   const data = Object.fromEntries(formData.entries()) as {
     name: string;
@@ -115,11 +166,16 @@ export default function RegisterPage() {
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                onBlur={() => markTouched("name")}
                 placeholder="Your full name"
+                aria-invalid={!!showError("name") || undefined}
                 className="pl-9 h-10"
                 required
               />
             </div>
+            {showError("name") && (
+              <p className="text-xs text-destructive">{errors.name}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -137,11 +193,16 @@ export default function RegisterPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => markTouched("email")}
                 placeholder="you@example.com"
+                aria-invalid={!!showError("email") || undefined}
                 className="pl-9 h-10"
                 required
               />
             </div>
+            {showError("email") && (
+              <p className="text-xs text-destructive">{errors.email}</p>
+            )}
           </div>
 
           {/* Phone number */}
@@ -159,11 +220,16 @@ export default function RegisterPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                onBlur={() => markTouched("phone")}
                 placeholder="01XXX-XXXXXX"
+                aria-invalid={!!showError("phone") || undefined}
                 className="pl-9 h-10"
                 required
               />
             </div>
+            {showError("phone") && (
+              <p className="text-xs text-destructive">{errors.phone}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -181,8 +247,10 @@ export default function RegisterPage() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => markTouched("password")}
                 placeholder="Create a password"
-                className="pl-9 pr-9 h-10 mb-2"
+                aria-invalid={!!showError("password") || undefined}
+                className="pl-9 pr-9 h-10"
                 required
               />
               <button
@@ -198,34 +266,39 @@ export default function RegisterPage() {
                 )}
               </button>
             </div>
-            {/* Password strength ticks */}
-            <div className="grid grid-cols-4 gap-1.5 pt-1">
-              <div
-                className={`h-1 rounded-full ${
-                  password.length > 0 ? "bg-brand-orange" : "bg-slate-200"
-                }`}
-              />
-              <div
-                className={`h-1 rounded-full ${
-                  password.length >= 6 ? "bg-brand-orange" : "bg-slate-200"
-                }`}
-              />
-              <div
-                className={`h-1 rounded-full ${
-                  password.length >= 8 ? "bg-brand-orange" : "bg-slate-200"
-                }`}
-              />
-              <div
-                className={`h-1 rounded-full ${
-                  /[A-Z]/.test(password) && /[0-9]/.test(password)
-                    ? "bg-brand-orange"
-                    : "bg-slate-200"
-                }`}
-              />
+            {showError("password") && (
+              <p className="text-xs text-destructive">{errors.password}</p>
+            )}
+            {/* Live password rule checks */}
+            <div className="space-y-1.5 pt-1">
+              {[
+                {
+                  label: "At least 6 characters",
+                  ok: password.length >= 6,
+                },
+                {
+                  label: "At least one uppercase letter",
+                  ok: /[A-Z]/.test(password),
+                },
+                {
+                  label: "At least one lowercase letter",
+                  ok: /[a-z]/.test(password),
+                },
+              ].map((rule) => (
+                <div
+                  key={rule.label}
+                  className="flex items-center gap-1.5 text-[11px] text-slate-400"
+                >
+                  <Check
+                    className={`size-3 shrink-0 ${
+                      rule.ok ? "text-brand-orange" : "text-slate-300"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {rule.label}
+                </div>
+              ))}
             </div>
-            <p className="text-[11px] text-slate-400">
-              Use at least 8 characters with a number or symbol.
-            </p>
           </div>
 
           {/* Terms checkbox */}
@@ -235,6 +308,7 @@ export default function RegisterPage() {
               checked={agree}
               onCheckedChange={(checked) => setAgree(!!checked)}
               required
+              aria-invalid={!!showError("terms") || undefined}
             />
             <Label
               htmlFor="terms"
@@ -250,6 +324,9 @@ export default function RegisterPage() {
               </Link>
             </Label>
           </div>
+          {showError("terms") && (
+            <p className="-mt-2.5 text-xs text-destructive">{errors.terms}</p>
+          )}
 
           {/* Submit Button */}
           <Button

@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import ProfileDropdown from "./ProfileDropdown";
 
 const signInClass = cn(
   buttonVariants({ variant: "outline", size: "lg" }),
@@ -22,9 +23,9 @@ const getStartedClass = cn(
 export async function Navbar() {
   const session = await auth.api.getSession({
     headers: await headers() // you need to pass the headers object.
-})
+  })
   console.log(session?.user);
-  
+
 
 
   return (
@@ -37,22 +38,19 @@ export async function Navbar() {
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          {
-            session?.user ? <>
-             <img
-              src={session.user.image || session.user.name?.charAt(0) }
-              alt={ session.user.name?.trim().charAt(0)}
-              className="size-10 rounded-full border border-border object-cover"
-            />
-            </> :<>
-            <Link href="/login" className={signInClass}>
-            Sign In
-          </Link>
-          <Link href="/register" className={getStartedClass}>
-            Get Started
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link></>
-          }
+          {session?.user ? (
+            <ProfileDropdown session={session} />
+          ) : (
+            <>
+              <Link href="/login" className={signInClass}>
+                Sign In
+              </Link>
+              <Link href="/register" className={getStartedClass}>
+                Get Started
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </>
+          )}
           <MobileNav />
         </div>
       </div>
