@@ -16,10 +16,9 @@ const bulletClass =
 export function TechnicianCta() {
   return (
     <section className="relative isolate overflow-hidden rounded-[32px] bg-gradient-to-br from-[#142b4d] via-[#18345b] to-[#1d3d6b] px-7 py-12 sm:px-14 sm:py-14">
-      {/* Decorative circles */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-16 -top-16 size-72 rounded-full bg-white/15"
+        className="pointer-events-none absolute -right-16 -top-16 size-72 rounded-full bg-[#3B5578]/90"
       />
 
       <div
@@ -27,10 +26,10 @@ export function TechnicianCta() {
         className="pointer-events-none absolute -bottom-20 left-[38%] size-40 rounded-full bg-white/[0.055]"
       />
 
-      {/* Main content */}
+  
       <div className="relative grid gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
 
-        {/* Left content */}
+   
         <div>
           <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-orange-300">
             For technicians
@@ -83,7 +82,7 @@ export function TechnicianCta() {
           </Link>
         </div>
 
-        {/* Booking request preview */}
+      
         <div className="relative flex items-center justify-center lg:justify-end">
           <article className="w-full max-w-[340px] rounded-[20px] bg-white p-[22px] shadow-xl shadow-black/10">
 

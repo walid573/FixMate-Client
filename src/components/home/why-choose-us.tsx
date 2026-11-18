@@ -63,7 +63,6 @@ function WhyChooseCard({ item }: { item: FeatureItem }) {
           : "bg-white ring-1 ring-[#E8EDF3]"
       )}
     >
-      {/* Decorative circle */}
       {item.featured && (
         <div
           aria-hidden="true"
@@ -71,7 +70,6 @@ function WhyChooseCard({ item }: { item: FeatureItem }) {
         />
       )}
 
-      {/* Icon */}
       <span
         className={cn(
           "relative flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-[16px]",
@@ -87,7 +85,6 @@ function WhyChooseCard({ item }: { item: FeatureItem }) {
         />
       </span>
 
-      {/* Title */}
       <h3
         className={cn(
           "relative mt-5 text-xl font-bold leading-6 tracking-tight",
@@ -97,7 +94,6 @@ function WhyChooseCard({ item }: { item: FeatureItem }) {
         {item.title}
       </h3>
 
-      {/* Description */}
       <p
         className={cn(
           "relative mt-2 text-[15px] leading-6",
@@ -107,7 +103,7 @@ function WhyChooseCard({ item }: { item: FeatureItem }) {
         {item.description}
       </p>
 
-      {/* Tags */}
+   
       {(item.tags?.length || item.rating) && (
         <ul className="relative mt-auto flex flex-wrap items-center gap-2 pt-5">
           {item.tags?.map((tag) => (
