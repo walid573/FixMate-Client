@@ -16,7 +16,7 @@ const getStartedClass = cn(
   "hidden h-10 rounded-full bg-brand-orange px-5 font-semibold text-brand-navy hover:bg-brand-orange/90 focus-visible:ring-white/40 sm:inline-flex",
 );
 
-export function SiteHeader() {
+export function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-brand-navy">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-8">

@@ -29,7 +29,7 @@ const becomeClass = cn(
 export function Hero() {
   return (
     <section className="bg-brand-cream">
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-24">
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:px-8 lg:py-20">
       
         <div>
           <p className="inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-white px-4 py-1.5 text-xs font-medium text-brand-orange-ink shadow-sm">
@@ -91,10 +91,8 @@ export function Hero() {
           </div>
         </div>
 
-  
-        <div className="relative mx-auto w-full max-w-lg px-6 sm:px-10">
+        <div className="relative w-full px-3">
           <div className="relative aspect-[6/5] rounded-[2rem] bg-brand-navy">
-        
             <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(255,150,61,0.35),transparent_55%)]" />
               <div className="absolute inset-0 opacity-70 [background-image:linear-gradient(to_right,rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:32px_32px]" />
