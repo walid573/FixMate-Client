@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, Wrench } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { DesktopNav } from "@/components/layout/desktop-nav";
+import { Logo } from "@/components/layout/logo";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,21 +21,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-brand-navy">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-8">
-        <Link
-          href="/"
-          aria-label="FixMate home"
-          className="flex w-fit items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-orange"
-        >
-          <span className="flex size-10 items-center justify-center rounded-[13px] bg-linear-to-br from-brand-orange via-brand-orange-light to-brand-orange-deep text-white shadow-[0_0_18px_-2px_rgba(250,127,61,0.65)]">
-            <Wrench className="size-5 -rotate-12" aria-hidden="true" />
-          </span>
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-white">Fix</span>
-            <span className="text-brand-orange [text-shadow:0_0_14px_rgba(255,150,61,0.45)]">
-              Mate
-            </span>
-          </span>
-        </Link>
+        <Logo />
 
         <div className="hidden justify-self-center lg:block">
           <DesktopNav />
