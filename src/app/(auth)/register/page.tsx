@@ -2,15 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Lock, Mail, Phone, User, ArrowRight, Check } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Phone,
+  User,
+  ArrowRight,
+  Check,
+  MapPin,
+  Camera,
+  FileText,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [role, setRole] = useState<"customer" | "technician">("customer");
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -25,12 +39,22 @@ export default function RegisterPage() {
     password: false,
     terms: false,
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [area, setArea] = useState("");
+  const [bio, setBio] = useState("");
+  const [confirmError, setConfirmError] = useState("");
+
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const markTouched = (field: keyof typeof touched) =>
     setTouched((prev) => ({ ...prev, [field]: true }));
 
-  // Field validation rules
+
   const validate = (
     name: string,
     email: string,
@@ -65,47 +89,52 @@ export default function RegisterPage() {
   const showError = (field: keyof typeof errors) =>
     submitAttempted || touched[field] ? errors[field] : undefined;
 
+  // Confirm password only matters for the password field itself; it is not
+  // part of the core validate() so it can stay role-agnostic.
+  const confirmMatches =
+    !confirmPassword || confirmPassword === password;
+  const passwordValid =
+    !errors.password &&
+    password.length >= 6 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setSubmitAttempted(true);
+    e.preventDefault();
+    setSubmitAttempted(true);
 
-  // Do not submit while any field is invalid
-  if (Object.keys(errors).length > 0) return;
+    if (Object.keys(errors).length > 0) return;
+    if (!confirmMatches) return;
 
-  const formData = new FormData(e.currentTarget);
-  const data = Object.fromEntries(formData.entries()) as {
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-    role: "customer" | "technician"
+    const { data: resData, error } =
+      await authClient.signUp.email({
+        name: fullName,
+        email,
+        phone,
+        password,
+        role,
+        area: role === "technician" ? area : undefined,
+        bio: role === "technician" ? bio : undefined,
+        callbackURL: "/",
+      });
+
+    if (error) {
+      console.error(error.message);
+      return;
+    }
+    router.push('/')
+    router.refresh()
+    console.log(resData);
   };
 
-  const { data: resData, error } = await authClient.signUp.email({
-    name: data.name,
-    email: data.email,
-    phone: data.phone,
-    password: data.password,
-    role:role,
-    callbackURL: "/",
-  });
-
-  if (error) {
-    console.log(error.message);
-    return;
-  }
-
-  console.log(resData);
-};
-
   const handleGoogleSignup = () => {
-    // Implement your Google OAuth handler here
+
     console.log("Google signup clicked");
   };
 
   return (
     <main className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center bg-slate-50 px-4 py-15 sm:px-6 lg:px-8">
-     
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute right-10 top-10 size-96 rounded-full bg-brand-peach/40 blur-3xl"
@@ -116,7 +145,7 @@ export default function RegisterPage() {
       />
 
       <div className="relative w-full max-w-[500px] rounded-3xl bg-white p-8 shadow-xl shadow-slate-200/60 ring-1 ring-slate-200/80 sm:p-10">
-      
+
         <h1 className="text-2xl font-bold tracking-tight text-brand-navy sm:text-3xl">
           Create your account
         </h1>
@@ -129,22 +158,20 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => setRole("customer")}
-            className={`rounded-lg py-2.5 text-xs font-semibold transition-all ${
-              role === "customer"
-                ? "bg-brand-navy text-white shadow-sm"
-                : "text-slate-600 hover:text-brand-navy"
-            }`}
+            className={`rounded-lg py-2.5 text-xs font-semibold transition-all ${role === "customer"
+              ? "bg-brand-navy text-white shadow-sm"
+              : "text-slate-600 hover:text-brand-navy"
+              }`}
           >
             Customer
           </button>
           <button
             type="button"
             onClick={() => setRole("technician")}
-            className={`rounded-lg py-2.5 text-xs font-semibold transition-all ${
-              role === "technician"
-                ? "bg-brand-navy text-white shadow-sm"
-                : "text-slate-600 hover:text-brand-navy"
-            }`}
+            className={`rounded-lg py-2.5 text-xs font-semibold transition-all ${role === "technician"
+              ? "bg-brand-navy text-white shadow-sm"
+              : "text-slate-600 hover:text-brand-navy"
+              }`}
           >
             Technician
           </button>
@@ -232,6 +259,95 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Technician-only fields */}
+          {role === "technician" && (
+            <>
+              {/* Area / Service region */}
+              <div className="space-y-1.5">
+                <Label htmlFor="area" className="text-xs font-semibold text-brand-navy">
+                  Service area
+                </Label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
+                    <MapPin className="size-4" aria-hidden="true" />
+                  </span>
+                  <Input
+                    id="area"
+                    name="area"
+                    type="text"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    placeholder="e.g. Dhaka, Gulshan"
+                    className="pl-9 h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-1.5">
+                <Label htmlFor="bio" className="text-xs font-semibold text-brand-navy">
+                  Short bio
+                </Label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
+                    <FileText className="size-4" aria-hidden="true" />
+                  </span>
+                  <Input
+                    id="bio"
+                    name="bio"
+                    type="text"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Tell customers what you specialize in"
+                    className="pl-9 h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Profile photo */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-brand-navy">
+                  Profile photo
+                </Label>
+                <div className="flex items-center gap-3">
+                  <label className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-brand-orange hover:text-brand-orange">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Profile preview"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <Camera className="size-5" aria-hidden="true" />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setProfileImage(file);
+                        if (file) {
+                          setImagePreview(URL.createObjectURL(file));
+                        } else {
+                          setImagePreview("");
+                        }
+                      }}
+                    />
+                  </label>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-slate-500">
+                      JPG, PNG or WebP
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      Max 5 MB
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Password */}
           <div className="space-y-1.5">
             <Label htmlFor="password" className="text-xs font-semibold text-brand-navy">
@@ -290,15 +406,59 @@ export default function RegisterPage() {
                   className="flex items-center gap-1.5 text-[11px] text-slate-400"
                 >
                   <Check
-                    className={`size-3 shrink-0 ${
-                      rule.ok ? "text-brand-orange" : "text-slate-300"
-                    }`}
+                    className={`size-3 shrink-0 ${rule.ok ? "text-brand-orange" : "text-slate-300"
+                      }`}
                     aria-hidden="true"
                   />
                   {rule.label}
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Confirm password */}
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword" className="text-xs font-semibold text-brand-navy">
+              Confirm password
+            </Label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
+                <Lock className="size-4" aria-hidden="true" />
+              </span>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (confirmError) setConfirmError("");
+                }}
+                onBlur={() => {
+                  if (confirmPassword && confirmPassword !== password)
+                    setConfirmError("Passwords do not match");
+                }}
+                placeholder="Repeat your password"
+                aria-invalid={!!confirmError || undefined}
+                className="pl-9 pr-9 h-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="size-4" aria-hidden="true" />
+                )}
+              </button>
+            </div>
+            {confirmError && (
+              <p className="text-xs text-destructive">{confirmError}</p>
+            )}
           </div>
 
           {/* Terms checkbox */}
@@ -386,7 +546,7 @@ export default function RegisterPage() {
         {/* Security footnote */}
         <p className="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
           <Lock className="size-3" aria-hidden="true" />
-          Secure sign in - Verified technicians only
+          Your role is saved as {role === "technician" ? "Technician" : "Customer"} on this device
         </p>
       </div>
     </main>

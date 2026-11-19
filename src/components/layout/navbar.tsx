@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -6,8 +8,7 @@ import { Logo } from "@/components/layout/logo";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { useSession } from "@/lib/auth-client";
 import ProfileDropdown from "./ProfileDropdown";
 
 const signInClass = cn(
@@ -20,13 +21,11 @@ const getStartedClass = cn(
   "hidden h-10 rounded-full bg-brand-orange px-5 font-semibold text-brand-navy hover:bg-brand-orange/90 focus-visible:ring-white/40 sm:inline-flex",
 );
 
-export async function Navbar() {
-  const session = await auth.api.getSession({
-    headers: await headers() // you need to pass the headers object.
-  })
-  console.log(session?.user);
-
-
+// Client component: reading the session via useSession() keeps the navbar
+// reactive and avoids the prerender-dynamic error that an async server
+// component calling auth.api.getSession() + headers() would trigger.
+export function Navbar() {
+  const { data: session, isPending } = useSession();
 
   return (
     <header className="sticky top-0 z-50 bg-brand-navy">
@@ -38,7 +37,7 @@ export async function Navbar() {
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          {session?.user ? (
+          {!isPending && session?.user ? (
             <ProfileDropdown session={session} />
           ) : (
             <>
