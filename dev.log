@@ -3,11 +3,11 @@ $ next dev
 - Local:         http://localhost:3000
 - Network:       http://192.168.0.8:3000
 - Environments: .env
-Γ£ô Ready in 280ms
-Γ£ô Running next.config.ts took 33ms
+Γ£ô Ready in 275ms
+Γ£ô Running next.config.ts took 28ms
 - Cache Components enabled
 - Partial Prefetching enabled
 - Experiments (use with caution):
   Γ£ô agentFeedback
 
- GET /register 200 in 315ms (next.js: 118ms, application-code: 197ms)
+ GET /dashboard/technician 200 in 631ms (next.js: 220ms, application-code: 411ms)
