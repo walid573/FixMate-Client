@@ -72,7 +72,7 @@ async function FeaturedServicesContent() {
                   <p className="mt-0.5 text-xs text-slate-500">
                     {service.estimatedDuration} ·{" "}
                     <span className="font-semibold text-brand-navy">
-                      From ৳{service.basePrice.toLocaleString("en-US")}
+                      From ${service.basePrice.toLocaleString("en-US")}
                     </span>
                   </p>
 

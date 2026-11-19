@@ -29,11 +29,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jakarta.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar />
+       
         <ToastProvider>
           {children}
         </ToastProvider>
-        <Footer />
+        
       </body>
     </html>
   );

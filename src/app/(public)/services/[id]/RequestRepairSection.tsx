@@ -91,29 +91,19 @@ export default function RequestRepairSection({
       setLoading(true);
 
       const payload = {
-        customerId: session.user.id,
+        serviceId: service._id,
+        serviceTitle: service.title,
+        serviceImage: service.image,
+        category: service.category,
+        basePrice: service.basePrice,
+        technicianName: service.technicianName,
+        technicianEmail: service.technicianEmail,
         customerName: session.user.name,
         customerEmail: session.user.email,
         customerPhone: phone.trim(),
         address: address.trim(),
         preferredDate,
         problemDescription: problemDescription.trim(),
-        service: {
-          serviceId: service._id,
-          title: service.title,
-          category: service.category,
-          basePrice: service.basePrice,
-          estimatedDuration: service.estimatedDuration,
-          serviceArea: service.serviceArea,
-          serviceMode: service.serviceMode,
-        },
-        technician: {
-          technicianId: service.technicianId || "tech-unknown",
-          technicianName: service.technicianName,
-          technicianArea: service.serviceArea,
-        },
-        status: "requested" as const,
-        paymentStatus: "unpaid" as const,
       };
 
       const res = await createBooking(payload);

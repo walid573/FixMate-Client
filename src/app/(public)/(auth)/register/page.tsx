@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { uploadImage } from "@/lib/upload-image";
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -99,9 +100,17 @@ export default function RegisterPage() {
     /[A-Z]/.test(password) &&
     /[a-z]/.test(password);
 
+
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitAttempted(true);
+
+     let imageUrl = "";
+
+    if (profileImage) {
+      imageUrl = await uploadImage(profileImage);
+    }
 
     if (Object.keys(errors).length > 0) return;
     if (!confirmMatches) return;
@@ -113,6 +122,7 @@ export default function RegisterPage() {
         phone,
         password,
         role,
+        image: imageUrl || undefined,
         area: role === "technician" ? area : undefined,
         bio: role === "technician" ? bio : undefined,
         callbackURL: "/",

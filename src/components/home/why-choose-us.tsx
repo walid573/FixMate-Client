@@ -32,7 +32,7 @@ const WHY_CHOOSE_US: FeatureItem[] = [
     title: "Transparent Pricing",
     description: "See the starting price before you book.",
     icon: Tag,
-    tags: ["From ৳1,200", "No surprises"],
+    tags: ["From $1,200", "No surprises"],
   },
   {
     title: "Easy Online Booking",

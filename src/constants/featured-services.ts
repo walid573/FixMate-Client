@@ -12,7 +12,7 @@ export interface FeaturedService {
   technician: string;
   location: string;
   duration: string;
-  /** Price in BDT, formatted at render time. */
+  /** Price in USD, formatted at render time. */
   price: number;
   mode: ServiceMode;
   /**

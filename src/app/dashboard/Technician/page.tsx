@@ -12,6 +12,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
+
 import {
   stats,
   bookings,
@@ -62,17 +64,14 @@ const handleBookingAction = (action: string, bookingId: string) => {
 const TechnicianPage = () => {
   return (
     <div className="space-y-6 w-full min-w-0 mb-20">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">Technician / Overview</p>
-          <h1 className="text-2xl font-bold text-brand-navy">
-            Technician Overview
-          </h1>
-        </div>
-        <span className="rounded-full bg-brand-navy px-4 py-1.5 text-sm font-semibold text-white">
-          Technician
-        </span>
-      </div>
+      <DashboardBreadcrumb
+        items={[{ label: "Technician" }, { label: "Overview" }]}
+        badge="Technician"
+      />
+
+      <h1 className="text-2xl font-bold text-brand-navy">
+        Technician Overview
+      </h1>
 
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">

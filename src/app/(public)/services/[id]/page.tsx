@@ -24,6 +24,16 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import RequestRepairSection from "./RequestRepairSection";
 
+// Shape returned by auth.api.getSession — we only need the user object.
+interface SessionUser {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  phone?: string;
+  area?: string;
+}
+
 interface PageProps {
   params: Promise<{
     id: string;
@@ -34,9 +44,14 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
   const { id } = await params;
 
   // Fetch session on the server
-  const session = await auth.api.getSession({
+  const authSession = await auth.api.getSession({
     headers: await headers(),
   });
+
+  // Pass only the user object to the client component, matching its prop type.
+  const session = authSession
+    ? { user: authSession.user as SessionUser }
+    : null;
 
   // Fetch all services and find the matching one
   const services = await getServices();
@@ -62,7 +77,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* Back link */}
+    
       <div>
         <Button
           variant="ghost"
@@ -75,9 +90,9 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 items-start">
-        {/* Left 2 columns: Service details & Technician */}
+     
         <div className="space-y-6 lg:col-span-2">
-          {/* Large image banner */}
+  
           <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-[#e8eef5] shadow-sm">
             {service.image && service.image.startsWith("http") ? (
               <img
@@ -92,7 +107,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Category & Title */}
+        
           <div>
             <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
               {service.category}
@@ -102,7 +117,6 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             </h1>
           </div>
 
-          {/* Technician summary card matching mock */}
           <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
             <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 ring-2 ring-slate-200 text-lg">
               {techInitials}
@@ -126,7 +140,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* About this service */}
+   
           <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm space-y-4">
             <h3 className="text-lg font-bold text-brand-navy">About this service</h3>
             <p className="text-sm leading-relaxed text-slate-600">
@@ -161,7 +175,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Right column: Request repair sidebar / form */}
+       
         <div className="lg:sticky lg:top-8">
           <RequestRepairSection service={service} session={session} />
         </div>

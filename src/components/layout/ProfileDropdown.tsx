@@ -5,6 +5,41 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard, User, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
+
+
+function ProfileAvatar({
+  image,
+  name,
+  size = "sm",
+}: {
+  image?: string | null;
+  name?: string | null;
+  size?: "sm" | "lg";
+}) {
+  const initial = name?.trim().charAt(0).toUpperCase() || "U";
+
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden rounded-full bg-transparent shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-transform duration-300 hover:scale-105 ${size === "lg" ? "size-16" : "size-11"
+        }`}
+    >
+      {image ? (
+        <Image
+          src={image}
+          alt={name || "Profile"}
+          fill
+          sizes={size === "lg" ? "64px" : "44px"}
+          className="object-cover"
+        />
+      ) : (
+        <div className="flex size-full items-center justify-center bg-[#263D5B] text-lg font-bold text-white">
+          {initial}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type Session = typeof authClient.$Infer.Session;
 
@@ -34,8 +69,12 @@ export default function ProfileDropdown({ session }: { session: Session }) {
         aria-label="Open profile menu"
         className="flex items-center gap-2 rounded-full p-1 transition hover:bg-slate-100"
       >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-orange text-lg font-bold text-brand-navy ring-2 ring-brand-orange ring-offset-2 ring-offset-brand-navy">
-          {initial}
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-orange text-lg font-bold text-brand-navy ring-2 ring-offset-2 ring-offset-brand-navy">
+          <ProfileAvatar
+            image={user.image}
+            name={user.name}
+            size="sm"
+          />
         </div>
       </button>
 
@@ -52,7 +91,11 @@ export default function ProfileDropdown({ session }: { session: Session }) {
             <div className="p-4">
               <div className="flex items-center gap-3">
                 <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-brand-orange text-lg font-bold text-brand-navy">
-                  {initial}
+                  <ProfileAvatar
+                    image={user.image}
+                    name={user.name}
+                    size="lg"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-md font-bold text-white">
@@ -61,13 +104,13 @@ export default function ProfileDropdown({ session }: { session: Session }) {
                   <p className="  truncate text-[10px] text-slate-300">
                     {user.email}
                   </p>
-                 <span className="my-1 inline-flex items-center rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-brand-orange">
-                {roleLabel}
-              </span>
+                  <span className="my-1 inline-flex items-center rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-brand-orange">
+                    {roleLabel}
+                  </span>
                 </div>
               </div>
-              
-               
+
+
             </div>
 
             {/* Menu */}

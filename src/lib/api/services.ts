@@ -23,8 +23,11 @@ export interface Service {
   serviceArea: string;
   serviceMode: "Home Visit" | "Shop Drop-off";
   technicianName: string;
-  isAvailable:boolean,
+  technicianId: string;
+  technicianEmail: string;
   image: string;
+  isAvailable?: boolean;
+  availableForBooking?: boolean;
   approvalStatus: string;
 }
 

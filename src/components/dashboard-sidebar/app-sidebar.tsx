@@ -75,17 +75,17 @@ const menuItemByRole: Record<Role, MenuItem[]> = {
     },
     {
       name: "Add New Service",
-      url: "/dashboard/technician/services/new",
+      url: "/dashboard/technician/add-service",
       icon: Plus,
     },
     {
       name: "My Services",
-      url: "/dashboard/technician/services",
+      url: "/dashboard/technician/my-services",
       icon: Wrench,
     },
     {
       name: "Booking Requests",
-      url: "/dashboard/technician/bookings",
+      url: "/dashboard/technician/requests",
       icon: ClipboardList,
     },
     {
