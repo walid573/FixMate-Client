@@ -23,7 +23,7 @@ export interface Service {
   serviceArea: string;
   serviceMode: "Home Visit" | "Shop Drop-off";
   technicianName: string;
-  technicianId: string;
+  technicianId?: string;
   technicianEmail: string;
   image: string;
   isAvailable?: boolean;
@@ -78,18 +78,18 @@ export const getServices = async (): Promise<Service[]> => {
 
 export const addService = async (serviceData: AddServiceData) => {
   try {
-    const res = await fetch(`${process.env.BASE_URL}/services`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(serviceData),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/services`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(serviceData),
+      }
+    );
 
     const data = await res.json();
-
-    console.log("Backend response:", data);
-    console.log("HTTP status:", res.status);
 
     if (!res.ok) {
       throw new Error(data.message || "Failed to submit service");

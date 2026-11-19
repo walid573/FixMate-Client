@@ -54,7 +54,9 @@ export default function AddServicePage() {
         setDuration("");
         setServiceMode("home");
         setAvailableForBooking(true);
+        setImage("");
     };
+
     const handleImageUpload = async (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -70,36 +72,36 @@ export default function AddServicePage() {
         try {
             setUploading(true);
             setError("");
+            setSuccess("");
 
             const formData = new FormData();
             formData.append("image", file);
 
-            const response = await fetch(
-                `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-                {
-                    method: "POST",
-                    body: formData,
-                }
-            );
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
 
             const result = await response.json();
 
-            if (!result.success) {
-                throw new Error("Image upload failed.");
+            if (!response.ok) {
+                throw new Error(result.message || "Upload failed.");
             }
 
-            setImage(result.data.url);
+            setImage(result.imageUrl);
             setSuccess("Image uploaded successfully!");
+
         } catch (error) {
             setError(
                 error instanceof Error
                     ? error.message
-                    : "Failed to upload image."
+                    : "Image upload failed."
             );
         } finally {
             setUploading(false);
         }
     };
+
 
     const handleSubmit = async (
         e: React.FormEvent<HTMLFormElement>
@@ -455,33 +457,67 @@ export default function AddServicePage() {
                     </Card>
 
                     {/* Image URL */}
+                    {/* Service Image Upload */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Service photo</CardTitle>
-
+                            <CardTitle>Service Photo</CardTitle>
                             <CardDescription>
-                                Add an image URL for your service.
+                                Upload a photo of your repair service.
                             </CardDescription>
                         </CardHeader>
 
-                        <CardContent>
-                            <div className="space-y-1.5">
-                                <Label htmlFor="image">
-                                    Image URL (optional)
+                        <CardContent className="space-y-4">
+
+                            <div className="space-y-2">
+                                <Label htmlFor="imageUpload">
+                                    Choose Service Image
                                 </Label>
 
                                 <Input
-                                    id="image"
-                                    name="image"
-                                    type="url"
-                                    placeholder="https://example.com/service-image.jpg"
-                                    className="h-10"
+                                    id="imageUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                    className="cursor-pointer"
                                 />
-
-                                <p className="text-[11px] text-muted-foreground">
-                                    Paste a publicly accessible image URL.
-                                </p>
                             </div>
+
+                            {uploading && (
+                                <p className="text-sm text-muted-foreground">
+                                    Uploading image...
+                                </p>
+                            )}
+
+                            {image && (
+                                <div className="space-y-2">
+                                    <img
+                                        src={image}
+                                        alt="Service preview"
+                                        className="h-40 w-full rounded-xl object-cover"
+                                    />
+
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setImage("")}
+                                    >
+                                        Remove Image
+                                    </Button>
+                                </div>
+                            )}
+
+                            {/* Hidden input sends the ImgBB URL to your backend */}
+                            <input
+                                type="hidden"
+                                name="image"
+                                value={image}
+                            />
+
+                            <p className="text-xs text-muted-foreground">
+                                Maximum image size: 5MB.
+                            </p>
+
                         </CardContent>
                     </Card>
 
@@ -520,7 +556,7 @@ export default function AddServicePage() {
 
                         <Button
                             type="submit"
-                            disabled={loading || isPending}
+                            disabled={loading || isPending || uploading}
                             className="bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/95"
                         >
                             {loading ? "Submitting..." : "Submit for approval"}
