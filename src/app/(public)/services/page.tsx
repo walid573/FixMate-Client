@@ -31,7 +31,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
   // Filter & sort on the server
   const filtered = services.filter((s) => {
     // Only show approved services by default for customers
-    if (s.approvalStatus !== "approved") return false;
+    if (s.approvalStatus !== "approved" && s.availableForBooking !== true) return false;
 
     if (
       search &&

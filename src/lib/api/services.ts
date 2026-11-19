@@ -101,3 +101,100 @@ export const addService = async (serviceData: AddServiceData) => {
     throw error;
   }
 };
+
+// ---------------------------------------------------------------------------
+// Fetch a single service by id (SERVER-side, used by the edit page).
+// Returns null when the id is invalid or the service does not exist, so the
+// page can call notFound().
+// ---------------------------------------------------------------------------
+export const getServiceById = async (id: string): Promise<Service | null> => {
+  try {
+    const res = await fetch(`${process.env.BASE_URL}/services/${id}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    return (await res.json()) as Service;
+  } catch (error) {
+    console.error("Failed to fetch service:", error);
+    return null;
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Update a service (BROWSER-side).
+//
+// PATCH /services with { id, technicianId, ...updates } — the route has no
+// :id, so both ids travel in the body.
+//
+// Two shapes are supported by the server:
+//   - { availableForBooking }  -> availability toggle, approval untouched
+//   - { title, category, ... } -> content edit, which RESETS approvalStatus
+//     back to "pending" for a fresh admin review.
+// ---------------------------------------------------------------------------
+export const updateService = async (
+  id: string,
+  technicianId: string,
+  updates: Partial<
+    Pick<
+      Service,
+      | "title"
+      | "category"
+      | "description"
+      | "basePrice"
+      | "estimatedDuration"
+      | "serviceArea"
+      | "serviceMode"
+      | "image"
+      | "availableForBooking"
+    >
+  >
+): Promise<Service> => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/services`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, technicianId, ...updates }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "Failed to update the service."
+    );
+  }
+
+  return data as Service;
+};
+
+// ---------------------------------------------------------------------------
+// Delete a service (BROWSER-side).
+//
+// DELETE /services/:id?technicianId=... — the server re-checks ownership and
+// returns 404 when the service belongs to someone else.
+// ---------------------------------------------------------------------------
+export const deleteService = async (
+  id: string,
+  technicianId: string
+): Promise<void> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}` +
+      `?technicianId=${encodeURIComponent(technicianId)}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "Failed to delete the service."
+    );
+  }
+};
