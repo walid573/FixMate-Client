@@ -1,3 +1,17 @@
+export interface AddServiceData {
+  title: string;
+  category: string;
+  description: string;
+  basePrice: number;
+  estimatedDuration: string;
+  serviceArea: string;
+  serviceMode: "Home Visit" | "Shop Drop-off";
+  technicianName: string;
+  technicianId: string;
+  image?: string;
+  availableForBooking: boolean;
+}
+
 
 export interface Service {
   _id: string;
@@ -9,13 +23,14 @@ export interface Service {
   serviceArea: string;
   serviceMode: "Home Visit" | "Shop Drop-off";
   technicianName: string;
+  isAvailable:boolean,
   image: string;
   approvalStatus: string;
 }
 
 export const getFeaturedServices = async (): Promise<Service[]> => {
   try {
-    const res = await fetch("http://localhost:8000/feature-services", {
+    const res = await fetch(`${process.env.BASE_URL}/feature-services`, {
       cache: "no-store",
     });
 
@@ -40,7 +55,7 @@ export const getFeaturedServices = async (): Promise<Service[]> => {
 
 export const getServices = async (): Promise<Service[]> => {
   try {
-    const res = await fetch("http://localhost:8000/services", {
+    const res = await fetch(`${process.env.BASE_URL}/services`, {
       cache: "no-store",
     });
 
@@ -54,5 +69,32 @@ export const getServices = async (): Promise<Service[]> => {
   } catch (error) {
     console.error("Failed to fetch services:", error);
     return [];
+  }
+};
+
+
+export const addService = async (serviceData: AddServiceData) => {
+  try {
+    const res = await fetch(`${process.env.BASE_URL}/services`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(serviceData),
+    });
+
+    const data = await res.json();
+
+    console.log("Backend response:", data);
+    console.log("HTTP status:", res.status);
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to submit service");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("API submission error:", error);
+    throw error;
   }
 };
