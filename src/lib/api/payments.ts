@@ -105,3 +105,67 @@ export const getPayments = async (email: string): Promise<Payment[]> => {
     return [];
   }
 };
+
+// ---------------------------------------------------------------------------
+// Start Stripe Checkout for a completed booking.
+//
+// POST /api/payments/create-checkout-session (protected — the server keys
+// the booking to the logged-in user; only bookingId travels from here).
+// Returns the hosted Stripe URL the browser must redirect to.
+// ---------------------------------------------------------------------------
+export interface CreateCheckoutSessionResult {
+  url: string;
+}
+
+export async function createCheckoutSession(
+  bookingId: string
+): Promise<CreateCheckoutSessionResult> {
+  const res = await fetch("/api/payments/create-checkout-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bookingId }),
+  });
+
+  const data = (await res.json().catch(() => ({}))) as {
+    url?: string;
+    error?: string;
+  };
+
+  if (!res.ok || !data.url) {
+    throw new Error(data.error || "Could not start checkout.");
+  }
+
+  return { url: data.url };
+}
+
+// ---------------------------------------------------------------------------
+// Verify a Checkout Session after the Stripe redirect.
+//
+// GET /api/payments/verify?session_id=... (protected). The server settles
+// the payment AT MOST ONCE — safe to call twice (refresh, retries).
+// ---------------------------------------------------------------------------
+export interface VerifyPaymentResult {
+  paid: boolean;
+  alreadyPaid?: boolean;
+  amount?: number;
+  transactionId?: string;
+  serviceTitle?: string;
+}
+
+export async function verifyCheckoutSession(
+  sessionId: string
+): Promise<VerifyPaymentResult> {
+  const res = await fetch(
+    `/api/payments/verify?session_id=${encodeURIComponent(sessionId)}`
+  );
+
+  const data = (await res.json().catch(() => ({}))) as VerifyPaymentResult & {
+    error?: string;
+  };
+
+  if (!res.ok) {
+    throw new Error(data.error || "Could not verify payment.");
+  }
+
+  return data;
+}

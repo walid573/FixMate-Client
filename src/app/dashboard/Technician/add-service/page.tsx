@@ -58,9 +58,8 @@ export default function AddServicePage() {
         setImage("");
     };
 
-    const handleImageUpload = async (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>)=> {
+
         const file = e.target.files?.[0];
 
         if (!file) return;
@@ -103,12 +102,9 @@ export default function AddServicePage() {
     };
 
 
-    const handleSubmit = async (
-        e: React.FormEvent<HTMLFormElement>
-    ) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        // Capture the form before the asynchronous operation.
+        
         const form = e.currentTarget;
 
         if (isPending) return;

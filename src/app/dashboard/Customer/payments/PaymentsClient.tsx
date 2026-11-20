@@ -25,6 +25,7 @@ import {
 
 import { useToast } from "@/lib/toast";
 import {
+  createCheckoutSession,
   summarize,
   type Payment,
   type PaymentStatus,
@@ -81,6 +82,7 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
   const [range, setRange] = useState<string>("90");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [paying, setPaying] = useState(false);
 
   // Captured once so the range filter stays stable across re-renders
   // (react-hooks/purity forbids calling Date.now() directly during render).
@@ -125,9 +127,21 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
     (p) => p.status === "pending" && p.jobStatus === "completed"
   );
 
-  // ---- stubbed handlers: wire to Stripe when the backend route exists ----
-  function handlePayNow() {
-    pushToast("Stripe checkout coming soon.", "info");
+  // Pay Now — the server creates the Checkout Session for the completed
+  // booking, then the browser hands over to Stripe's hosted page.
+  async function handlePayNow() {
+    if (!duePayment || paying) return;
+    setPaying(true);
+    try {
+      const { url } = await createCheckoutSession(duePayment.bookingId);
+      window.location.href = url;
+    } catch (err) {
+      pushToast(
+        err instanceof Error ? err.message : "Could not start checkout.",
+        "error"
+      );
+      setPaying(false);
+    }
   }
 
   function handleReceipt(payment: Payment) {
@@ -205,10 +219,11 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
               </span>
               <Button
                 onClick={handlePayNow}
+                disabled={paying}
                 className="gap-2 bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/90"
               >
                 <Lock className="size-4" />
-                Pay Now
+                {paying ? "Redirecting…" : "Pay Now"}
               </Button>
             </div>
           </div>

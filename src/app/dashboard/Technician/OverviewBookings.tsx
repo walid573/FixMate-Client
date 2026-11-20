@@ -8,7 +8,7 @@ import TechnicianActionCell, {
   type TechnicianAction,
 } from "@/components/bookings/TechnicianActionCell";
 import TechnicianActionDialog from "@/components/bookings/TechnicianActionDialog";
-import { statusBadge } from "@/lib/booking-status";
+import { statusBadge, paymentBadge } from "@/lib/booking-status";
 import type { Booking } from "@/lib/api/bookings";
 
 // ---------------------------------------------------------------------------
@@ -94,9 +94,7 @@ export default function OverviewBookings({
               </td>
               <td className="py-3 text-right">
                 {booking.status === "completed" ? (
-                  <span className="text-xs text-muted-foreground">
-                    Awaiting payment
-                  </span>
+                  <BadgePill badge={paymentBadge(booking.paymentStatus)} />
                 ) : (
                   <TechnicianActionCell
                     booking={booking}

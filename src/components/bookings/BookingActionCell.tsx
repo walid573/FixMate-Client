@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/lib/toast";
 import { bookingAction, type Badge } from "@/lib/booking-status";
+import { createCheckoutSession } from "@/lib/api/payments";
 import type { Booking } from "@/lib/api/bookings";
 
 // ---------------------------------------------------------------------------
@@ -27,7 +29,7 @@ export function BadgePill({ badge }: { badge: Badge }) {
 // the Overview table and the My Bookings page:
 //
 //   requested           -> Cancel button   (opens the confirmation modal)
-//   completed + unpaid  -> Pay Now         (Stripe is out of scope: toast)
+//   completed + unpaid  -> Pay Now         (Stripe Checkout, test mode)
 //   completed + paid    -> "Paid" badge INSTEAD of a button
 //   rejected / cancelled-> real Link to /services
 //   accepted / in-progress -> muted text, not clickable
@@ -44,7 +46,24 @@ export default function BookingActionCell({
   onCancel,
 }: BookingActionCellProps) {
   const pushToast = useToast();
+  const [paying, setPaying] = useState(false);
   const action = bookingAction(booking);
+
+  // Pay Now — the server creates a Stripe Checkout Session for this
+  // completed booking, then the browser hands over to Stripe's hosted page.
+  async function handlePay() {
+    setPaying(true);
+    try {
+      const { url } = await createCheckoutSession(booking._id);
+      window.location.href = url;
+    } catch (err) {
+      pushToast(
+        err instanceof Error ? err.message : "Could not start checkout.",
+        "error"
+      );
+      setPaying(false);
+    }
+  }
 
   if (!action) {
     return <span className="text-xs text-muted-foreground">—</span>;
@@ -70,10 +89,11 @@ export default function BookingActionCell({
       return (
         <Button
           size="sm"
+          disabled={paying}
           className="bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/90"
-          onClick={() => pushToast("Stripe checkout is not wired up yet.", "info")}
+          onClick={handlePay}
         >
-          Pay Now
+          {paying ? "Redirecting…" : "Pay Now"}
         </Button>
       );
 

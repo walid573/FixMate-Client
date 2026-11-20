@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import type { Booking } from "@/lib/api/bookings";
-import { statusBadge } from "@/lib/booking-status";
+import { statusBadge, paymentBadge } from "@/lib/booking-status";
 import { BadgePill } from "@/components/bookings/BookingActionCell";
 import TechnicianActionCell, {
   type TechnicianAction,
@@ -197,7 +197,14 @@ export default function BookingRequestsClient({
                         </p>
                       </TableCell>
                       <TableCell>
-                        <BadgePill badge={statusBadge(booking.status)} />
+                        <div className="flex flex-col items-start gap-1.5">
+                          <BadgePill badge={statusBadge(booking.status)} />
+                          {booking.status === "completed" && (
+                            <BadgePill
+                              badge={paymentBadge(booking.paymentStatus)}
+                            />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <TechnicianActionCell
