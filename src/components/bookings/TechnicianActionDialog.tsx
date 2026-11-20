@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/lib/toast";
 import {
   updateBookingStatus,
+  updateFinalAmount,
   type Booking,
 } from "@/lib/api/bookings";
 import { technicianActions, type TechnicianAction } from "@/components/bookings/TechnicianActionCell";
@@ -34,32 +35,77 @@ export default function TechnicianActionDialog({
 }: TechnicianActionDialogProps) {
   const [busy, setBusy] = useState(false);
   const [finalAmount, setFinalAmount] = useState<string>("");
+  const [amountError, setAmountError] = useState<string | null>(null);
   const pushToast = useToast();
 
   const open = Boolean(booking) && Boolean(action);
+  const isEditAmount = action?.kind === "edit-amount";
 
-  // Sync initial amount when action opens
-  useState(() => {
+  // Prefill the amount every time the dialog opens. (This used to run only
+  // on first mount, so it could carry a stale or empty value.)
+  // A 0 / missing finalAmount falls back to the base price so the technician
+  // never starts from an invalid value.
+  useEffect(() => {
     if (booking && action?.targetStatus === "completed") {
-      setFinalAmount(String(booking.finalAmount ?? booking.basePrice ?? 0));
+      const current = Number(booking.finalAmount);
+      const fallback = Number(booking.basePrice);
+      setFinalAmount(
+        String(
+          Number.isFinite(current) && current > 0
+            ? current
+            : Number.isFinite(fallback) && fallback > 0
+            ? fallback
+            : ""
+        )
+      );
+      setAmountError(null);
     }
-  });
+  }, [booking, action]);
+
+  // Client-side guard so a $0 / empty / garbage amount never even reaches
+  // the server (the server rejects it again anyway — belt and braces).
+  function validateAmount(): string | null {
+    if (finalAmount.trim() === "") return "Enter a final amount.";
+    const value = Number(finalAmount);
+    if (!Number.isFinite(value)) return "Enter a valid number.";
+    if (value <= 0) return "Final amount must be greater than $0.";
+    return null;
+  }
 
   async function handleConfirm() {
     if (!booking || !action || busy) return;
 
+    const needsAmount = action.targetStatus === "completed";
+    if (needsAmount) {
+      const problem = validateAmount();
+      if (problem) {
+        setAmountError(problem);
+        return;
+      }
+    }
+
     setBusy(true);
     try {
-      await updateBookingStatus(
-        booking._id,
-        technicianEmail,
-        action.targetStatus,
-        action.targetStatus === "completed" ? Number(finalAmount) : undefined
-      );
-      pushToast(
-        `${booking.serviceTitle} moved to ${action.targetStatus}.`,
-        "success"
-      );
+      if (action.kind === "edit-amount") {
+        // Edit-price mode: amount only, the status never changes.
+        await updateFinalAmount(
+          booking._id,
+          technicianEmail,
+          Number(finalAmount)
+        );
+        pushToast(`Final amount for ${booking.serviceTitle} updated.`, "success");
+      } else {
+        await updateBookingStatus(
+          booking._id,
+          technicianEmail,
+          action.targetStatus,
+          action.targetStatus === "completed" ? Number(finalAmount) : undefined
+        );
+        pushToast(
+          `${booking.serviceTitle} moved to ${action.targetStatus}.`,
+          "success"
+        );
+      }
       onConfirmed();
       onClose();
     } catch (err) {
@@ -74,6 +120,12 @@ export default function TechnicianActionDialog({
 
   function heading() {
     if (!action) return { title: "", description: "" };
+    if (action.kind === "edit-amount") {
+      return {
+        title: "Edit final amount",
+        description: `Update the final price for ${booking?.serviceTitle}.`,
+      };
+    }
     switch (action.targetStatus) {
       case "accepted":
         return {
@@ -128,9 +180,17 @@ export default function TechnicianActionDialog({
           </div>
         )}
         <DialogHeader>
-          <DialogTitle>{isCompleted ? "Mark as completed" : title}</DialogTitle>
+          <DialogTitle>
+            {isEditAmount
+              ? "Edit final amount"
+              : isCompleted
+              ? "Mark as completed"
+              : title}
+          </DialogTitle>
           <DialogDescription>
-            {isCompleted
+            {isEditAmount
+              ? "Update the final price for this job."
+              : isCompleted
               ? "Enter the final amount for this job."
               : description}
           </DialogDescription>
@@ -157,16 +217,29 @@ export default function TechnicianActionDialog({
                 </span>
                 <Input
                   type="number"
+                  min={0.01}
+                  step="0.01"
                   value={finalAmount}
-                  onChange={(e) => setFinalAmount(e.target.value)}
+                  onChange={(e) => {
+                    setFinalAmount(e.target.value);
+                    if (amountError) setAmountError(null);
+                  }}
                   className="pl-7"
                   placeholder="1500"
+                  aria-invalid={Boolean(amountError)}
                 />
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                Pre-filled with the base price. Change it if the final cost
-                differs.
-              </p>
+              {amountError ? (
+                <p className="text-[11px] font-medium text-red-500">
+                  {amountError}
+                </p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground">
+                  {isEditAmount
+                    ? "The amount can be changed until the customer pays."
+                    : "Pre-filled with the base price. Must be greater than $0."}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -186,7 +259,11 @@ export default function TechnicianActionDialog({
             }
           >
             {busy
-              ? "Updating…"
+              ? isEditAmount
+                ? "Saving…"
+                : "Updating…"
+              : isEditAmount
+              ? "Save amount"
               : isCompleted
               ? "Mark completed"
               : action?.label}

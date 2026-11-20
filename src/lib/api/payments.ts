@@ -117,9 +117,7 @@ export interface CreateCheckoutSessionResult {
   url: string;
 }
 
-export async function createCheckoutSession(
-  bookingId: string
-): Promise<CreateCheckoutSessionResult> {
+export async function createCheckoutSession(bookingId: string): Promise<CreateCheckoutSessionResult> {
   const res = await fetch("/api/payments/create-checkout-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

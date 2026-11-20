@@ -4,10 +4,7 @@ import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-// ---------------------------------------------------------------------------
-// Payment cancel — Stripe redirects here when the customer backs out.
-// Nothing changes in the database; just a friendly way back.
-// ---------------------------------------------------------------------------
+
 export default function PaymentCancelPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">

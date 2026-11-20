@@ -7,13 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PaymentSuccessVerifier from "./PaymentSuccessVerifier";
 
-// ---------------------------------------------------------------------------
-// Payment success — Stripe redirects here after a completed checkout.
-//
-// In this Next.js version `searchParams` is a Promise, so it is awaited.
-// The page only reads the session id; the actual verification against the
-// server runs once inside PaymentSuccessVerifier.
-// ---------------------------------------------------------------------------
+
 const backToBookings = (
   <Button
     variant="outline"

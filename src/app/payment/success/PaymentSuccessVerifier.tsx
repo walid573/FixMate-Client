@@ -11,15 +11,7 @@ import {
   type VerifyPaymentResult,
 } from "@/lib/api/payments";
 
-// ---------------------------------------------------------------------------
-// PaymentSuccessVerifier
-//
-// Calls GET /api/payments/verify EXACTLY ONCE per session id. The server
-// settles the payment idempotently, so even a double run (React StrictMode,
-// page refresh) never saves the same payment twice.
-//
-// States: verifying -> success (amount + transaction id) | not paid | error.
-// ---------------------------------------------------------------------------
+
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
@@ -69,7 +61,7 @@ export default function PaymentSuccessVerifier({
     </Button>
   );
 
-  // Still verifying
+
   if (!result && !error) {
     return (
       <Shell>
@@ -84,7 +76,7 @@ export default function PaymentSuccessVerifier({
     );
   }
 
-  // Verification failed or the session was never paid
+
   if (error || !result?.paid) {
     return (
       <Shell>
@@ -104,7 +96,7 @@ export default function PaymentSuccessVerifier({
     );
   }
 
-  // Success — amount + transaction id per spec
+
   return (
     <Shell>
       <span className="flex size-12 items-center justify-center rounded-full bg-emerald-100">

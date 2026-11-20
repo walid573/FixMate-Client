@@ -205,3 +205,38 @@ export const updateBookingStatus = async (
   }
 };
 
+// ---------------------------------------------------------------------------
+// Edit the final amount of a completed, not-yet-paid booking.
+//
+// PATCH /bookings/:id/final-amount with { technicianEmail, finalAmount }
+// The server rejects $0 / non-numeric amounts, calls from anyone but the
+// booking's technician, jobs that aren't completed, and jobs that are
+// already paid (the price is locked once the customer settles).
+//
+// Runs in the BROWSER, so it must use NEXT_PUBLIC_API_URL.
+// ---------------------------------------------------------------------------
+export const updateFinalAmount = async (
+  bookingId: string,
+  technicianEmail: string,
+  finalAmount: number
+): Promise<void> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/final-amount`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ technicianEmail, finalAmount }),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "Failed to update the amount."
+    );
+  }
+};
+
