@@ -4,10 +4,13 @@
 // GET /payments?email=... returns a JSON array of Payment, newest first.
 //
 // The backend currently DERIVES payment records from the bookings collection
-// (there is no `payments` collection until Stripe is wired up), so
-// `paymentMethod`, `stripePaymentIntentId` and `receiptUrl` come back empty
-// and the table renders "—" for those columns. The shape is already correct,
-// so swapping the server over to real Stripe data needs no client changes.
+// (there is no `payments` collection until Stripe is wired up).
+// `stripePaymentIntentId` and `paymentMethod` come back as MOCK values, but
+// ONLY for bookings that are actually paid — a pending payment has no card or
+// PaymentIntent yet, so those fields are undefined and the table renders "—".
+// `receiptUrl` stays empty until Stripe can issue real receipts. The shape is
+// already correct, so swapping the server over to real Stripe data needs no
+// client changes.
 //
 // On any failure we return [] so the page degrades to a clean empty state
 // instead of crashing (same pattern as getBookings).

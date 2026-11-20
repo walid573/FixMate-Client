@@ -56,17 +56,22 @@ export interface CreateBookingResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Fetch bookings for a customer (server-side).
-// The server route GET /bookings?email=... is not implemented yet — this
-// function is wired up and ready; add the route on the backend first.
+// Fetch bookings for a customer (server-side) OR a technician.
+// The route GET /bookings?email=... OR GET /bookings?technicianEmail=...
+// is now implemented.
 // ---------------------------------------------------------------------------
 
-export const getBookings = async (email: string): Promise<Booking[]> => {
+export const getBookings = async (
+  email?: string,
+  technicianEmail?: string
+): Promise<Booking[]> => {
   try {
-    const res = await fetch(
-      `${process.env.BASE_URL}/bookings?email=${encodeURIComponent(email)}`,
-      { cache: "no-store" }
-    );
+    let url = `${process.env.BASE_URL}/bookings?`;
+    if (email) url += `email=${encodeURIComponent(email)}`;
+    else if (technicianEmail)
+      url += `technicianEmail=${encodeURIComponent(technicianEmail)}`;
+
+    const res = await fetch(url, { cache: "no-store" });
 
     if (!res.ok) {
       throw new Error("Failed to fetch bookings");
@@ -150,4 +155,53 @@ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
     
   }); 
 }
+
+// ---------------------------------------------------------------------------
+// Technician booking actions.
+//
+// PATCH /bookings/:id/status with { status, technicianEmail, finalAmount? }
+// — the SAME route the customer cancel flow uses, but ownership is checked
+// against technicianEmail and the new status walks the transition ladder:
+//   requested  -> accepted / rejected
+//   accepted   -> in-progress / rejected
+//   in-progress-> completed / rejected
+//
+// `finalAmount` is OPTIONAL — it is only meaningful when marking a job
+// "completed" (the technician sets the final price). The server ignores it
+// for every other transition.
+//
+// Terminal states (completed / cancelled / rejected) can never be changed.
+//
+// Runs in the BROWSER, so it must use NEXT_PUBLIC_API_URL.
+// ---------------------------------------------------------------------------
+export const updateBookingStatus = async (
+  bookingId: string,
+  technicianEmail: string,
+  status: "accepted" | "in-progress" | "completed" | "rejected",
+  finalAmount?: number
+): Promise<void> => {
+  const body: Record<string, unknown> = { status, technicianEmail };
+  if (finalAmount !== undefined) {
+    body.finalAmount = finalAmount;
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/status`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "Failed to update the booking."
+    );
+  }
+};
 

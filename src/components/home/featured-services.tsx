@@ -28,7 +28,6 @@ async function FeaturedServicesContent() {
             <li key={service._id}>
               <article className="flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200/70">
 
-                {/* Service Image */}
                 <div className="relative aspect-[16/10] bg-slate-100">
                   {service.image ? (
                     <Image

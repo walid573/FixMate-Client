@@ -68,7 +68,7 @@ function formatDate(value?: string) {
   });
 }
 
-// "p1_IqV9.a1f2" style id — shortened for the table column.
+// "pi_3qX9_a1f2" style id — shortened for the table column.
 function shortId(id?: string) {
   if (!id) return "—";
   return id.length > 14 ? `${id.slice(0, 13)}…` : id;
@@ -261,44 +261,43 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[960px] text-sm">
+              <table className="w-full min-w-[900px] text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs font-medium text-muted-foreground">
-                    <th className="pb-3">Service</th>
-                    <th className="pb-3">Technician</th>
-                    <th className="pb-3 text-right">Amount</th>
-                    <th className="pb-3">Transaction ID</th>
-                    <th className="pb-3">Payment date</th>
-                    <th className="pb-3">Method</th>
-                    <th className="pb-3">Status</th>
+                    <th className="pb-3 pr-4">Date</th>
+                    <th className="pb-3 pr-4">Service</th>
+                    <th className="pb-3 pr-4">Amount</th>
+                    <th className="pb-3 pr-4">Method</th>
+                    <th className="pb-3 pr-4">Transaction ID</th>
+                    <th className="pb-3 pr-4">Status</th>
                     <th className="pb-3 text-right">Receipt</th>
                   </tr>
                 </thead>
                 <tbody>
                   {visible.map((payment) => (
-                    <tr key={payment._id} className="border-b last:border-0">
-                      <td className="py-3.5 pr-4 font-semibold text-brand-navy">
-                        {payment.serviceTitle}
+                    <tr
+                      key={payment._id}
+                      className="border-b transition-colors last:border-0 hover:bg-slate-50/60"
+                    >
+                      {/* paidAt — falls back to the booking date for pending rows */}
+                      <td className="whitespace-nowrap py-3.5 pr-4 font-medium text-brand-navy">
+                        {formatDate(payment.paidAt ?? payment.createdAt)}
                       </td>
 
-                      <td className="py-3.5 pr-4 text-muted-foreground">
-                        {payment.technicianName}
+                      <td className="py-3.5 pr-4">
+                        <p className="font-semibold text-brand-navy">
+                          {payment.serviceTitle}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {payment.technicianName}
+                        </p>
                       </td>
 
-                      <td className="py-3.5 text-right font-semibold text-brand-navy">
+                      <td className="whitespace-nowrap py-3.5 pr-4 font-bold text-brand-navy">
                         {formatMoney(payment.amount)}
                       </td>
 
-                      <td className="py-3.5 font-mono text-xs text-muted-foreground">
-                        {shortId(payment.stripePaymentIntentId)}
-                      </td>
-
-                      {/* paidAt — "—" until the payment actually settles */}
-                      <td className="py-3.5 whitespace-nowrap text-muted-foreground">
-                        {formatDate(payment.paidAt)}
-                      </td>
-
-                      <td className="py-3.5">
+                      <td className="whitespace-nowrap py-3.5 pr-4">
                         {payment.paymentMethod ? (
                           <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                             <span className="rounded bg-brand-navy px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase">
@@ -314,7 +313,11 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
                         )}
                       </td>
 
-                      <td className="py-3.5">
+                      <td className="whitespace-nowrap py-3.5 pr-4 font-mono text-xs text-muted-foreground">
+                        {shortId(payment.stripePaymentIntentId)}
+                      </td>
+
+                      <td className="whitespace-nowrap py-3.5 pr-4">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                             statusStyles[payment.status] ?? statusStyles.pending
@@ -325,15 +328,26 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
                       </td>
 
                       <td className="py-3.5 text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5"
-                          onClick={() => handleReceipt(payment)}
-                        >
-                          <Download className="size-3.5" />
-                          Receipt
-                        </Button>
+                        {payment.status === "paid" ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1.5"
+                            onClick={() => handleReceipt(payment)}
+                          >
+                            <Download className="size-3.5" />
+                            Receipt
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="gap-1.5 bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/90"
+                            onClick={handlePayNow}
+                            disabled={payment.jobStatus !== "completed"}
+                          >
+                            {payment.jobStatus === "completed" ? "Pay Now" : "Pending work"}
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}

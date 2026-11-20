@@ -50,24 +50,28 @@ export const getFeaturedServices = async (): Promise<Service[]> => {
   }
 };
 
-// ---------------------------------------------------------------------------
-// Convenience view model for the "Featured Services" component on the homepage.
-// It maps the raw API shape to the friendly field names that component uses.
-// ---------------------------------------------------------------------------
 
 
-export const getServices = async (): Promise<Service[]> => {
+
+// ---------------------------------------------------------------------------
+// Fetch services (server-side). Optionally filtered by technicianEmail so the
+// technician dashboard only shows the services that belong to them.
+// ---------------------------------------------------------------------------
+export const getServices = async (
+  technicianEmail?: string,
+  technicianId?: string
+): Promise<Service[]> => {
   try {
-    const res = await fetch(`${process.env.BASE_URL}/services`, {
-      cache: "no-store",
-    });
-
+    let url = `${process.env.BASE_URL}/services`;
+    const params = new URLSearchParams();
+    if (technicianEmail) params.set("technicianEmail", technicianEmail);
+    if (technicianId) params.set("technicianId", technicianId);
+    if (params.toString()) url += `?${params.toString()}`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) {
       throw new Error("Failed to fetch services");
     }
-
     const services: Service[] = await res.json();
-
     return services;
   } catch (error) {
     console.error("Failed to fetch services:", error);

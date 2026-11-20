@@ -25,27 +25,74 @@ export default async function ServicesPage({ searchParams }: PageProps) {
   const sort = resolvedParams.sort || "newest";
 
   // Fetch services from http://localhost:8000/services
-  
+
   const services = await getServices()
+
+  
+  const normalizeText = (value: string | undefined | null) =>
+  (value ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+
+const matchesSearch = (service: (typeof services)[number], query: string) => {
+  if (!query.trim()) return true;
+
+  const searchableText = normalizeText(
+    [
+      service.title,
+      service.description,
+      service.category,
+      service.technicianName,
+      service.serviceArea,
+      service.serviceMode,
+    ].join(" ")
+  );
+
+  const words = searchableText.split(" ");
+  const searchWords = normalizeText(query).split(" ").filter(Boolean);
+
+  return searchWords.every((searchWord) => {
+    // AC should match AC, Air Conditioner, or Air Conditioning
+    if (searchWord === "ac") {
+      return (
+        words.includes("ac") ||
+        searchableText.includes("air conditioner") ||
+        searchableText.includes("air conditioning")
+      );
+    }
+
+    // Match complete words or word beginnings
+    return words.some((word) => word.startsWith(searchWord));
+  });
+};
 
   // Filter & sort on the server
   const filtered = services.filter((s) => {
-    // Only show approved services by default for customers
-    if (s.approvalStatus !== "approved" && s.availableForBooking !== true) return false;
+    // Only approved and available services
+    if (s.approvalStatus !== "approved") return false;
+    if (s.isAvailable !== true) return false;
 
+    // Improved search
+    if (!matchesSearch(s, search)) return false;
+
+    // Category filter
     if (
-      search &&
-      !s.title.toLowerCase().includes(search.toLowerCase()) &&
-      !s.description.toLowerCase().includes(search.toLowerCase())
+      category !== "all" &&
+      normalizeText(s.category) !== normalizeText(category)
     ) {
       return false;
     }
-    if (category !== "all" && s.category.toLowerCase() !== category.toLowerCase()) {
+
+    // Service mode filter
+    if (
+      mode !== "all" &&
+      normalizeText(s.serviceMode) !== normalizeText(mode)
+    ) {
       return false;
     }
-    if (mode !== "all" && s.serviceMode.toLowerCase() !== mode.toLowerCase()) {
-      return false;
-    }
+
     return true;
   });
 

@@ -1,29 +1,17 @@
-import React from "react";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-
-import { auth } from "@/lib/auth";
 import { getBookings } from "@/lib/api/bookings";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 import BookingRequestsClient from "./BookingRequestsClient";
+import { getSessionServer } from "@/lib/Session/server";
 
-// ---------------------------------------------------------------------------
-// Booking Requests (Technician) — SERVER COMPONENT
-//
-// Reads the technician session, fetches bookings assigned to this technician's
-// email (`GET /bookings?technicianEmail=...`), and renders the Manage Requests
-// interface (table, status tabs, search, action buttons, pagination).
-// ---------------------------------------------------------------------------
+
 export default async function BookingRequestPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await getSessionServer()
   if (!session?.user?.email) {
     redirect("/login");
   }
 
-  const bookings = await getBookings(session.user.email);
+  const bookings = await getBookings(undefined, session.user.email);
 
   return (
     <div className="space-y-6">

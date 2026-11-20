@@ -7,13 +7,7 @@ import { getServiceById } from "@/lib/api/services";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 import EditServiceForm from "./EditServiceForm";
 
-// ---------------------------------------------------------------------------
-// Edit Service (technician) — SERVER COMPONENT
-//
-// Loads the service with GET /services/:id, then enforces ownership:
-// a service that does not exist, or belongs to another technician, renders
-// Not Found instead of leaking someone else's record.
-// ---------------------------------------------------------------------------
+
 interface PageProps {
   params: Promise<{
     id: string;
@@ -37,7 +31,7 @@ export default async function EditServicePage({ params }: PageProps) {
     notFound();
   }
 
-  // Ownership: only the technician who created it may edit it.
+
   if (service.technicianId !== session.user.id) {
     notFound();
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
 
 import {
   Dialog,
@@ -66,21 +67,26 @@ export default function DeleteServiceDialog({
       }}
     >
       <DialogContent>
+        <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-red-100 text-red-600">
+          <Trash2 className="size-6" />
+        </div>
         <DialogHeader>
           <DialogTitle>Delete this service?</DialogTitle>
-          <DialogDescription>
-            {service
-              ? `${service.title} will be permanently removed. Customers will no longer be able to find or book it. This cannot be undone.`
-              : ""}
+          <DialogDescription className="mt-2 text-sm">
+            <strong className="font-semibold text-foreground">
+              {service?.title}
+            </strong>{" "}
+            will be removed permanently and disappear from public pages. Existing
+            bookings are not affected.
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
+        <DialogFooter className="mt-4 gap-2">
           <Button variant="outline" onClick={onClose} disabled={busy}>
-            Keep service
+            Cancel
           </Button>
           <Button variant="destructive" onClick={handleConfirm} disabled={busy}>
-            {busy ? "Deleting…" : "Yes, delete service"}
+            {busy ? "Deleting…" : "Delete service"}
           </Button>
         </DialogFooter>
       </DialogContent>
