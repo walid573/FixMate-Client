@@ -6,11 +6,12 @@
 // ---------------------------------------------------------------------------
 import { useState } from "react";
 import { useToast } from "@/lib/toast";
+import { useRouter } from "next/navigation";
 
 export function useUpdateUserRole() {
   const [loading, setLoading] = useState(false);
   const pushToast = useToast();
-
+  const router = useRouter()
   async function updateRole(userId: string, role: string) {
     setLoading(true);
     try {
@@ -31,6 +32,7 @@ export function useUpdateUserRole() {
       }
 
       pushToast(`Role updated to ${role}.`, "success");
+      router.refresh()
     } catch (err) {
       pushToast(
         err instanceof Error ? err.message : "Failed to update role.",

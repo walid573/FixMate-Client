@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Info, Lock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { BadgePill } from "@/components/bookings/BookingActionCell";
 import { useUpdateUserRole } from "@/hooks/use-update-user-role";
-import { useToast } from "@/lib/toast";
+import { useRouter } from "next/navigation";
 
 // ---------------------------------------------------------------------------
 // ManageUsersClient
@@ -34,19 +34,19 @@ const ROLE_BADGES: Record<string, { label: string; className: string }> = {
   admin: { label: "Admin", className: "bg-purple-50 text-purple-600" },
 };
 
-export default function ManageUsersClient({
-  initialUsers,
-  currentUserEmail,
-}: {
-  initialUsers: User[];
-  currentUserEmail: string;
-}) {
+export default function ManageUsersClient({initialUsers,currentUserEmail,}: {initialUsers: User[]; currentUserEmail: string;}) {
+
   const [users, setUsers] = useState(initialUsers);
+  
+  // Add this: sync state when server data updates
+  useEffect(() => {
+    setUsers(initialUsers);
+  }, [initialUsers]);
   const [tab, setTab] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const pushToast = useToast();
-
+  const [updateRole, roleLoading] = useUpdateUserRole();
+  const router = useRouter()
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return users.filter((u) => {
@@ -77,21 +77,9 @@ export default function ManageUsersClient({
   );
 
   async function handleRoleChange(userId: string, nextRole: string) {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/users/${userId}/role`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: nextRole }),
-      }
-    );
-    if (!res.ok) throw new Error("Failed to update role");
-    pushToast(`Role updated to ${nextRole}.`, "success");
-  } catch (err) {
-    pushToast("Failed to update role.", "error");
+    await updateRole(userId, nextRole);
+    router.refresh()
   }
-}
 
   function formatDate(value: string) {
     const d = new Date(value);
