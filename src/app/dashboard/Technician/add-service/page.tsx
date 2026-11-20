@@ -27,6 +27,7 @@ import {
 
 import { useSessionClient } from "@/lib/Session/client";
 import { addService, type AddServiceData } from "@/lib/api/services";
+import { useToast } from "@/lib/toast";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 
 type ServiceMode = "home" | "dropoff";
@@ -35,6 +36,7 @@ type ServiceMode = "home" | "dropoff";
 
 export default function AddServicePage() {
     const { data: session, isPending } = useSessionClient();
+    const pushToast = useToast();
 
     const [serviceMode, setServiceMode] = useState<ServiceMode>("home");
     const [availableForBooking, setAvailableForBooking] = useState(true);
@@ -45,7 +47,6 @@ export default function AddServicePage() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
 
     const resetForm = (form: HTMLFormElement) => {
         form.reset();
@@ -65,14 +66,13 @@ export default function AddServicePage() {
         if (!file) return;
 
         if (file.size > 5 * 1024 * 1024) {
-            setError("Image must be smaller than 5MB.");
+            pushToast("Image must be smaller than 5MB.", "error");
             return;
         }
 
         try {
             setUploading(true);
             setError("");
-            setSuccess("");
 
             const formData = new FormData();
             formData.append("image", file);
@@ -89,7 +89,7 @@ export default function AddServicePage() {
             }
 
             setImage(result.imageUrl);
-            setSuccess("Image uploaded successfully!");
+            pushToast("Image uploaded successfully!", "success");
 
         } catch (error) {
             setError(
@@ -114,12 +114,12 @@ export default function AddServicePage() {
         if (isPending) return;
 
         if (!session?.user) {
-            setError("Please log in first.");
+            pushToast("Please log in first.", "error");
             return;
         }
 
         if (!category || !duration) {
-            setError("Please select a category and duration.");
+            pushToast("Please select a category and duration.", "error");
             return;
         }
 
@@ -140,17 +140,17 @@ export default function AddServicePage() {
 
         // Frontend validation
         if (!title || !description || !serviceArea) {
-            setError("Please fill in all required fields.");
+            pushToast("Please fill in all required fields.", "error");
             return;
         }
 
         if (description.length < 30 || description.length > 500) {
-            setError("Description must be between 30 and 500 characters.");
+            pushToast("Description must be between 30 and 500 characters.", "error");
             return;
         }
 
         if (!Number.isFinite(basePrice) || basePrice <= 0) {
-            setError("Please enter a valid price greater than zero.");
+            pushToast("Please enter a valid price greater than zero.", "error");
             return;
         }
 
@@ -172,12 +172,10 @@ export default function AddServicePage() {
         try {
             setLoading(true);
             setError("");
-            setSuccess("");
 
             await addService(serviceData as AddServiceData);
 
-            setSuccess("Service submitted successfully! Waiting for admin approval.");
-
+            pushToast("Service submitted successfully! Waiting for admin approval.", "success");
             resetForm(form);
         } catch (err) {
             console.error("Service submission error:", err);
@@ -186,6 +184,12 @@ export default function AddServicePage() {
                 err instanceof Error
                     ? err.message
                     : "Failed to submit service. Please try again."
+            );
+            pushToast(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to submit service. Please try again.",
+                "error"
             );
         } finally {
             setLoading(false);
@@ -528,12 +532,6 @@ export default function AddServicePage() {
                         </div>
                     )}
 
-                    {success && (
-                        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-                            {success}
-                        </div>
-                    )}
-
                     {/* Buttons */}
                     <div className="flex items-center justify-end gap-3 pt-2">
 
@@ -547,7 +545,6 @@ export default function AddServicePage() {
                                 if (form) {
                                     resetForm(form);
                                     setError("");
-                                    setSuccess("");
                                 }
                             }}
                         >

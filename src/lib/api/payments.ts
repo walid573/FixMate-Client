@@ -29,9 +29,11 @@ export interface Payment {
   _id: string;
   /** Booking this payment settles. */
   bookingId: string;
+  customerName?: string;
   customerEmail: string;
   serviceTitle: string;
-  technicianName: string;
+  technicianName?: string;
+  technicianEmail?: string;
   /** Amount in the charging currency (USD). */
   amount: number;
   currency: string;

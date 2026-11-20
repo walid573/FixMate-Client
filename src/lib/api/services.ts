@@ -202,3 +202,32 @@ export const deleteService = async (
     );
   }
 };
+
+// ---------------------------------------------------------------------------
+// Approve / reject a service (ADMIN-side).
+//
+// PATCH /services/:id/approval with { status: "approved" | "rejected" }.
+// ---------------------------------------------------------------------------
+export const updateApprovalStatus = async (
+  id: string,
+  status: "approved" | "rejected"
+): Promise<Service> => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}/approval`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "Failed to update approval status."
+    );
+  }
+
+  return data as Service;
+};

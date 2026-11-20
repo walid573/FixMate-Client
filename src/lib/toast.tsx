@@ -1,80 +1,65 @@
-'use client'
+"use client";
 
 // ---------------------------------------------------------------------------
-// Minimal in-house toast hook.
+// Toast layer — thin wrapper around sonner.
 //
-// Sonner / react-hot-toast are not installed in this project, so we provide a
-// tiny self-contained replacement: a hook that returns a `push(message, kind)`
-// function plus a `<ToastProvider />` to render the messages. It is
-// intentionally minimal — no animations, no positioning config — but covers
-// success / error / info toasts used across the app.
+// Every call site still imports `useToast()` and gets back a
+// `push(message, kind)` function, so the migration is invisible to the
+// components. The design here matches the FixMate brand: a rounded white
+// card with a navy headline and a 4px left accent bar that encodes the
+// kind (emerald = success, red = error, brand-orange = info).
 // ---------------------------------------------------------------------------
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { toast as sonnerToast, Toaster } from "sonner";
 
 export type ToastKind = "success" | "error" | "info";
 
-export interface Toast {
-  id: number;
-  message: string;
-  kind: ToastKind;
-}
+const BASE =
+  "group toast rounded-xl border bg-card text-card-foreground shadow-lg " +
+  "border-l-4 pl-4";
 
-interface ToastContextValue {
-  push: (message: string, kind?: ToastKind) => void;
-}
+const KIND_STYLE: Record<ToastKind, string> = {
+  success: "border-l-emerald-500 [&_svg]:text-emerald-500",
+  error: "border-l-red-500 [&_svg]:text-red-500",
+  info: "border-l-brand-orange [&_svg]:text-brand-orange",
+};
 
-const ToastContext = createContext<ToastContextValue | null>(null);
-
-let nextId = 1;
-
-export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const push = useCallback((message: string, kind: ToastKind = "info") => {
-    const id = nextId++;
-    setToasts((prev) => [...prev, { id, message, kind }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  }, []);
-
-  const value = useMemo(() => ({ push }), [push]);
-
-  return (
-    <ToastContext.Provider value={value}>
-      {children}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`rounded-lg px-4 py-3 text-sm font-medium shadow-lg ring-1 ${
-              t.kind === "success"
-                ? "bg-green-50 text-green-800 ring-green-200"
-                : t.kind === "error"
-                  ? "bg-red-50 text-red-800 ring-red-200"
-                  : "bg-slate-50 text-slate-800 ring-slate-200"
-            }`}
-          >
-            {t.message}
-          </div>
-        ))}
-      </div>
-    </ToastContext.Provider>
-  );
+export function pushToast(message: string, kind: ToastKind = "info") {
+  const style = KIND_STYLE[kind];
+  if (kind === "success") {
+    sonnerToast.success(message, { className: style });
+  } else if (kind === "error") {
+    sonnerToast.error(message, { className: style });
+  } else {
+    sonnerToast(message, { className: style });
+  }
 }
 
 export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) {
-    throw new Error("useToast must be used inside a <ToastProvider />");
-  }
-  return ctx.push;
+  return pushToast;
+}
+
+export function ThemeToaster() {
+  return (
+    <Toaster
+      position="bottom-right"
+      theme="light"
+      duration={4000}
+      gap={8}
+      style={{
+        fontFamily: "var(--font-inter), ui-sans-serif, system-ui",
+        background: "#ffffff",
+      }}
+    />
+  );
+}
+
+// Kept for backwards compatibility with the existing layout import.
+export function ToastProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {children}
+      <ThemeToaster />
+    </>
+  );
 }
