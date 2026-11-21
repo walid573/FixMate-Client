@@ -60,7 +60,7 @@ export default function ProfileDropdown({ session }: { session: Session }) {
 
   const handleSignOut = async () => {
     await authClient.signOut();
-    router.push("/login");
+    router.push("/sign-in");
     router.refresh();
   };
 
@@ -130,7 +130,7 @@ export default function ProfileDropdown({ session }: { session: Session }) {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-white">Dashboard</p>
                   <p className="mt-0.5 text-xs text-slate-300">
-                    Go to customer dashboard
+                    Go to {roleLabel} dashboard
                   </p>
                 </div>
               </Link>

@@ -127,23 +127,29 @@ export default function RegisterPage() {
         image: imageUrl || undefined,
         area: role === "technician" ? area : undefined,
         bio: role === "technician" ? bio : undefined,
-        callbackURL: "/",
       });
 
     if (error) {
       console.error(error.message);
+      pushToast(error.message || "Failed to create account.", "error");
       return;
     }
-    
+
     pushToast("Account created successfully!", "success");
-    router.push('/')
-    router.refresh()
+
+    // Redirect to role-based dashboard
+    const userRole = resData?.user?.role || role || "customer";
+    const dashboardPath = `/dashboard/${userRole}`;
+    router.push(dashboardPath);
+    router.refresh();
     console.log(resData);
   };
 
-  const handleGoogleSignup = () => {
-
-    console.log("Google signup clicked");
+  const handleGoogleSignup = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/", // will be overridden by middleware after login
+    });
   };
 
   return (

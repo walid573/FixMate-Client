@@ -26,13 +26,10 @@ export default function LoginPage() {
     const data = Object.fromEntries(formData.entries()) as {
       email: string;
       password: string;
-
     };
     const { data: resData, error } = await authClient.signIn.email({
       email: data.email,
       password: data.password,
-
-      callbackURL: "/",
     });
 
     if (error) {
@@ -47,13 +44,18 @@ export default function LoginPage() {
       `Welcome back${resData?.user?.name ? `, ${resData.user.name}` : ""}!`,
       "success"
     );
-    router.push('/')
-    router.refresh()
+    // Redirect to role-based dashboard
+    const role = resData?.user?.role || "customer";
+    const dashboardPath = `/dashboard/${role}`;
+    router.push(dashboardPath);
+    router.refresh();
   };
 
-  const handleGoogleLogin = () => {
-    // Implement your Google OAuth handler here
-    console.log("Google login clicked");
+  const handleGoogleLogin = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/", // will be overridden by middleware after login
+    });
   };
 
   return (
@@ -193,15 +195,11 @@ export default function LoginPage() {
             />
             <path
               fill="#34A853"
-              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.21 21.34 7.32 24 12 24z"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.21 21.34 7.32 24 12 24 z"
             />
             <path
               fill="#FBBC05"
-              d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.88 0 12s.43 3.85 1.19 5.39l4.08-3.15z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.32 0 3.21 2.66 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"
+              d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.88 0 12s.43 3.85 1.19 5.39l4.08-3.15c.95-2.85 3.6-4.96 6.73-4.96z"
             />
           </svg>
           Continue with Google

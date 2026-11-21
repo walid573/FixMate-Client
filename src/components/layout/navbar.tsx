@@ -41,10 +41,10 @@ export function Navbar() {
             <ProfileDropdown session={session} />
           ) : (
             <>
-              <Link href="/login" className={signInClass}>
+              <Link href="/sign-in" className={signInClass}>
                 Sign In
               </Link>
-              <Link href="/register" className={getStartedClass}>
+              <Link href="/sign-up" className={getStartedClass}>
                 Get Started
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>

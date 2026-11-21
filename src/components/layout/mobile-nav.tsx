@@ -66,12 +66,12 @@ export function MobileNav() {
 
         <SheetFooter>
           <SheetClose
-            render={<Link href="/login" className={signInClass} />}
+            render={<Link href="/sign-in" className={signInClass} />}
           >
             Sign In
           </SheetClose>
           <SheetClose
-            render={<Link href="/register" className={getStartedClass} />}
+            render={<Link href="/sign-up" className={getStartedClass} />}
           >
             Get Started
             <ArrowRight className="size-4" aria-hidden="true" />

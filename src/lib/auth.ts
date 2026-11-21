@@ -7,8 +7,6 @@ import jwtSign from "jsonwebtoken";
 
 const mongoUrl = process.env.MONGODB_URL;
 const baseURL = process.env.BETTER_AUTH_URL;
-// Shared with FixMate-server (its .env has the same value). The Express API
-// verifies every Bearer token with this secret, so tokens must be HS256.
 const jwtSecret = process.env.JWT_SECRET;
 
 if (!mongoUrl) {
@@ -36,21 +34,28 @@ export const auth = betterAuth({
     enabled: true,
   },
 
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      mapProfileToUser: () => ({ phone: "", role: "customer" }),
+    },
+  },
+
   user: {
     modelName: "users",
 
     additionalFields: {
       phone: {
         type: "string",
-        required: true,
+        required: false,
+        input: true,
       },
 
       role: {
         type: ["customer", "technician", "admin"],
         required: false,
         defaultValue: "customer",
-        // Must be client-settable so the register page can persist the role
-        // the user picked (customer or technician). "admin" is blocked below.
         input: true,
       },
 
@@ -68,8 +73,6 @@ export const auth = betterAuth({
     },
   },
 
-  // Signup accepts customer/technician, but a crafted request must never be
-  // able to create an admin account.
   databaseHooks: {
     user: {
       create: {
@@ -85,11 +88,8 @@ export const auth = betterAuth({
 
   plugins: [
     jwt({
-      // The plugin requires a remote JWKS URL whenever `jwt.sign` is
-      // overridden. Verification happens on Express with the shared secret,
-      // so this URL is only declared to satisfy that check and is never used.
       jwks: {
-        remoteUrl: "http://localhost:3000/api/auth/jwks",
+        remoteUrl: `${baseURL}/api/auth/jwks`,
         keyPairConfig: { alg: "RS256" },
       },
       jwt: {
@@ -103,12 +103,6 @@ export const auth = betterAuth({
           role: user.role,
         }),
 
-        // By default the plugin signs EdDSA with its own key pair, which
-        // jsonwebtoken (Express) rejects for an HMAC secret. Sign HS256 with
-        // the shared JWT_SECRET so `jwt.verify(token, secret)` works there.
-        //
-        // The plugin passes `iat`/`nbf` even when undefined and jsonwebtoken
-        // refuses registered claims that are not numbers, so drop those.
         sign: (payload) => {
           const claims = Object.fromEntries(
             Object.entries(payload).filter(([, value]) => value !== undefined)
