@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const router = useRouter()
+  const pushToast = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,7 +34,19 @@ export default function LoginPage() {
 
       callbackURL: "/",
     });
-    console.log(resData);
+
+    if (error) {
+      pushToast(
+        error.message || "Invalid email or password. Please try again.",
+        "error"
+      );
+      return;
+    }
+
+    pushToast(
+      `Welcome back${resData?.user?.name ? `, ${resData.user.name}` : ""}!`,
+      "success"
+    );
     router.push('/')
     router.refresh()
   };

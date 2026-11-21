@@ -51,8 +51,12 @@ export default function ProfileDropdown({ session }: { session: Session }) {
 
   const user = session.user;
   const initial = user.name?.trim().charAt(0).toUpperCase() || "U";
-  const isTechnician = user.role === "technician";
-  const roleLabel = isTechnician ? "Technician" : "Customer";
+  const roleLabel =
+    user.role === "technician"
+      ? "Technician"
+      : user.role === "admin"
+      ? "Admin"
+      : "Customer";
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -134,7 +138,7 @@ export default function ProfileDropdown({ session }: { session: Session }) {
               <div className="mx-4 border-t border-white/10" />
 
               <Link
-                href="/profile"
+                href={`/dashboard/${session.user.role}/profile`}
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 transition hover:bg-white/5"
               >

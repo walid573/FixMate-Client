@@ -21,11 +21,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/lib/upload-image";
 
 export default function RegisterPage() {
   const router = useRouter()
+  const pushToast = useToast();
   const [role, setRole] = useState<"customer" | "technician">("customer");
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -132,6 +134,8 @@ export default function RegisterPage() {
       console.error(error.message);
       return;
     }
+    
+    pushToast("Account created successfully!", "success");
     router.push('/')
     router.refresh()
     console.log(resData);

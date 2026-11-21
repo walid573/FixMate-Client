@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-// Matches the pills used on the admin dashboard so the role looks identical.
+
 const ROLE_BADGES: Record<string, { label: string; className: string }> = {
   customer: { label: "Customer", className: "bg-brand-navy text-white" },
   technician: { label: "Technician", className: "bg-blue-50 text-blue-600" },
@@ -151,8 +151,6 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
 
     try {
       setSaving(true);
-
-      // email and role are deliberately omitted — both are read-only here.
       const { error } = await authClient.updateUser({
         name: trimmedName,
         phone: trimmedPhone,
@@ -166,6 +164,10 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
       }
 
       pushToast("Profile updated successfully.", "success");
+      setName(trimmedName);
+      setPhone(trimmedPhone);
+      setArea(area.trim());
+      setBio(bio.trim());
       router.refresh();
     } catch (err) {
       pushToast(
