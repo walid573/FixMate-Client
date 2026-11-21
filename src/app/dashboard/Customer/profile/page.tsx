@@ -18,7 +18,7 @@ export default async function CustomerProfilePage() {
   const user = session.user;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 pb-12">
+    <div className="mx-auto max-w-7xl space-y-6 pb-12">
       <div>
         <DashboardBreadcrumb
           items={[

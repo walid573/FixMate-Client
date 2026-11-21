@@ -38,6 +38,7 @@ interface UpdateProfileFormProps {
     area: string;
     bio: string;
     role?: string | null;
+    createdAt?: string | null;
   };
 }
 
@@ -45,6 +46,15 @@ function initialsOf(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return "?";
   return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+}
+
+function formatDate(iso?: string | null) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +88,7 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
   }, [user.name, user.phone, user.area, user.bio, user.image]);
 
   const badge = ROLE_BADGES[user.role ?? "customer"] ?? ROLE_BADGES.customer;
+  const memberSince = formatDate(user.createdAt);
 
   const handleFile = async (file: File) => {
     const okType =
@@ -175,7 +186,10 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSave} className="grid gap-6 lg:grid-cols-3">
+    <form
+      onSubmit={handleSave}
+      className="grid items-start gap-8 lg:grid-cols-[360px_1fr]"
+    >
       <input
         ref={fileRef}
         type="file"
@@ -189,18 +203,18 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
       />
 
       {/* ---- Avatar card ---- */}
-      <Card className="rounded-xl lg:col-span-1">
-        <CardContent className="flex flex-col items-center gap-4 pt-6 text-center">
+      <Card className="rounded-2xl lg:sticky lg:top-6">
+        <CardContent className="flex flex-col items-center px-8 py-8 text-center">
           <div className="relative">
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={image}
                 alt={name || "Profile photo"}
-                className="size-24 rounded-full object-cover ring-4 ring-brand-orange/20"
+                className="size-32 rounded-full object-cover ring-4 ring-brand-orange/20"
               />
             ) : (
-              <div className="flex size-24 items-center justify-center rounded-full bg-brand-orange text-2xl font-bold text-brand-navy ring-4 ring-brand-orange/20">
+              <div className="flex size-32 items-center justify-center rounded-full bg-brand-orange/25 text-4xl font-bold text-brand-navy">
                 {initialsOf(name)}
               </div>
             )}
@@ -210,68 +224,71 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
               aria-label="Change photo"
               disabled={uploading}
               onClick={() => fileRef.current?.click()}
-              className="absolute -right-1 -bottom-1 flex size-8 items-center justify-center rounded-full bg-brand-navy text-white ring-4 ring-white transition hover:bg-brand-navy/90 disabled:opacity-50"
+              className="absolute right-1 bottom-1 flex size-10 items-center justify-center rounded-full bg-brand-navy text-white ring-4 ring-white transition hover:bg-brand-navy/90 disabled:opacity-50"
             >
               {uploading ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="size-5 animate-spin" />
               ) : (
-                <Camera className="size-4" />
+                <Camera className="size-5" />
               )}
             </button>
           </div>
 
-          <div className="space-y-1">
-            <p className="truncate text-base font-semibold text-brand-navy">
-              {user.name || "—"}
+          <p className="mt-6 w-full truncate text-xl font-bold text-brand-navy">
+            {user.name || "—"}
+          </p>
+          <p className="mt-1 w-full truncate text-sm text-muted-foreground">
+            {user.email}
+          </p>
+
+          <span
+            className={`mt-3 inline-flex items-center rounded-full px-3.5 py-1 text-xs font-semibold ${badge.className}`}
+          >
+            {badge.label}
+          </span>
+
+          {memberSince && (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Member since {memberSince}
             </p>
-            <p className="truncate text-sm text-muted-foreground">
-              {user.email}
-            </p>
-            <span
-              className={`mt-1 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badge.className}`}
-            >
-              {badge.label}
-            </span>
-          </div>
+          )}
 
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={uploading}
-              onClick={() => fileRef.current?.click()}
-            >
-              {uploading ? "Uploading..." : "Upload photo"}
-            </Button>
+          <Button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            className="mt-7 h-12 w-full rounded-full bg-brand-orange text-sm font-semibold text-brand-navy hover:bg-brand-orange/95"
+          >
+            <Camera className="size-4" />
+            {uploading ? "Uploading..." : "Upload new photo"}
+          </Button>
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={!image || uploading}
-              onClick={() => setImage(null)}
-            >
-              Remove
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!image || uploading}
+            onClick={() => setImage(null)}
+            className="mt-3 h-12 w-full rounded-full text-sm font-semibold text-red-600 hover:bg-red-50 hover:text-red-600"
+          >
+            Remove photo
+          </Button>
 
-          <p className="text-xs text-muted-foreground">
-            JPG or PNG, up to 2 MB. Square photos look best.
+          <p className="mt-5 text-xs text-muted-foreground">
+            JPG or PNG, up to 2 MB. Stored on ImgBB.
           </p>
         </CardContent>
       </Card>
 
       {/* ---- Personal information ---- */}
-      <Card className="rounded-xl lg:col-span-2">
+      <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle>Personal information</CardTitle>
+          <CardTitle className="text-lg">Personal information</CardTitle>
           <CardDescription>
             Update your contact details and photo.
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <div className="space-y-1.5">
             <Label htmlFor="profile-name">Full name</Label>
 
@@ -282,7 +299,7 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
               placeholder="Your full name"
               maxLength={100}
               required
-              className="h-10"
+              className="h-11"
             />
           </div>
 
@@ -293,15 +310,15 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
               id="profile-email"
               value={user.email}
               disabled
-              className="h-10 bg-muted/50"
+              className="h-11 bg-muted/50"
             />
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Contact support to change your email address.
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="profile-phone">Phone number</Label>
 
@@ -312,7 +329,7 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
                 placeholder="e.g. +1 555 123 4567"
                 maxLength={30}
                 required
-                className="h-10"
+                className="h-11"
               />
             </div>
 
@@ -325,7 +342,7 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
                 onChange={(event) => setArea(event.target.value)}
                 placeholder="e.g. Dhaka, Gulshan"
                 maxLength={100}
-                className="h-10"
+                className="h-11"
               />
             </div>
           </div>
@@ -339,10 +356,10 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
               onChange={(event) => setBio(event.target.value)}
               placeholder="Tell customers what you specialize in"
               maxLength={300}
-              className="min-h-[90px] resize-y"
+              className="min-h-[110px] resize-y"
             />
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {bio.length}/300 characters.
             </p>
           </div>
@@ -354,18 +371,19 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
               id="profile-role"
               value={badge.label}
               disabled
-              className="h-10 bg-muted/50"
+              className="h-11 bg-muted/50"
             />
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Your role can only be changed by an admin.
             </p>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t pt-4">
+          <div className="flex items-center justify-end gap-3 border-t pt-5">
             <Button
               type="button"
               variant="outline"
+              className="h-10 px-5"
               disabled={saving || uploading}
               onClick={handleCancel}
             >
@@ -375,7 +393,7 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
             <Button
               type="submit"
               disabled={saving || uploading}
-              className="bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/95"
+              className="h-10 bg-brand-orange px-6 font-semibold text-brand-navy hover:bg-brand-orange/95"
             >
               {saving ? "Saving..." : "Save Changes"}
             </Button>
