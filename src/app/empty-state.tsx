@@ -1,81 +1,105 @@
+
 "use client";
 
-import { useToast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight } from "lucide-react";
+import { Wrench, CircleAlert } from "lucide-react";
 
 export interface EmptyStateProps {
-  /** Title displayed prominently */
-  title: string;
-  /** Description text */
+  title?: string;
   description?: string;
-  /** Optional image URL */
   image?: string;
-  /** Optional URL to redirect to */
   link?: string;
-  /** Optional URL text */
   linkText?: string;
-  /** Optional button text */
   buttonText?: string;
-  /** Optional button onClick handler */
   onButtonClick?: () => void;
+  supportLink?: string;
 }
 
 export default function EmptyState({
-  title,
-  description = "Something went wrong. Please try again.",
+  title = "Something went wrong",
+  description = "An unexpected error stopped this page from loading. It is not your fault, and your data is safe. Please try again.",
   image,
   link,
-  linkText,
-  buttonText = "Try Again",
+  linkText = "Back to Home",
+  buttonText = "Try again",
   onButtonClick,
+  supportLink = "mailto:support@example.com",
 }: EmptyStateProps) {
-  const pushToast = useToast();
-
   return (
-    <Card className="max-w-xl mx-auto my-12 p-6 border border-dashed border-brand-orange/50 rounded-xl text-center">
-      {image && (
-        <div className="flex justify-center mb-6">
-          <img 
-            src={image} 
-            alt={title} 
-            className="w-32 h-32 rounded-full"
-          />
+    <div className="min-h-[calc(100vh-64px)] w-full flex items-center justify-center bg-[#f5f7fa] px-4">
+      <Card className="w-full max-w-md border-0 shadow-none bg-transparent rounded-none p-6 text-center">
+
+        {/* Error Icon */}
+        <div className="flex justify-center mb-5">
+          <div className="relative flex items-center justify-center">
+            <div className="w-[70px] h-[70px] rounded-full bg-orange-100 flex items-center justify-center">
+              {image ? (
+                <img
+                  src={image}
+                  alt="Error"
+                  className="w-12 h-12 object-contain"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-brand-orange flex items-center justify-center">
+                  <Wrench className="w-7 h-7 text-brand-navy" />
+                </div>
+              )}
+            </div>
+
+            {/* Error Badge */}
+            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-600 flex items-center justify-center border-2 border-[#f5f7fa]">
+              <CircleAlert className="w-4 h-4 text-white" />
+            </div>
+          </div>
         </div>
-      )}
-      
-      <h1 className="text-4xl font-bold text-brand-navy mb-4">
-        {title}
-      </h1>
-      
-      {description && (
-        <p className="text-lg text-gray-700 mb-6">
-          {description}
-        </p>
-      )}
-      
-      {link && (
-        <div className="flex items-center justify-center mb-6">
-          <a 
-            href={link} 
-            className="inline-flex items-center gap-2 text-brand-orange font-medium hover:underline"
+
+        {/* Title */}
+        <h1 className="text-xl font-bold text-[#14243b] mb-2">
+          {title}
+        </h1>
+
+        {/* Description */}
+        {description && (
+          <p className="text-[11px] leading-[17px] text-slate-500 max-w-[320px] mx-auto mb-5">
+            {description}
+          </p>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-center gap-2 mb-3">
+
+          <Button
+            onClick={onButtonClick}
+            className="h-9 px-4 rounded-full bg-brand-orange text-brand-navy text-xs font-semibold shadow-md hover:bg-brand-orange/90"
           >
-            {linkText ?? "View Details"}
-            <ArrowRight className="size-4" />
+            {buttonText}
+          </Button>
+
+          {link && (
+            <Button
+              variant="outline"
+              onClick={() => window.location.href = link}
+              className="h-9 px-4 rounded-full border border-slate-200 bg-white text-[#14243b] text-xs font-medium hover:bg-slate-50"
+            >
+              {linkText}
+            </Button>
+          )}
+        </div>
+
+        {/* Error ID & Support */}
+        <div className="flex items-center justify-center gap-1 text-[10px] text-slate-400">
+          <span>Error ID: ER-FA-21C</span>
+          <span>·</span>
+          <a
+            href={supportLink}
+            className="text-brand-navy underline font-medium hover:text-brand-orange"
+          >
+            Contact support
           </a>
         </div>
-      )}
-      
-      <Button
-        onClick={onButtonClick}
-        className="w-full py-3 bg-brand-orange text-brand-navy hover:bg-brand-orange/90 font-semibold"
-      >
-        {buttonText}
-      </Button>
-    </Card>
+
+      </Card>
+    </div>
   );
 }
