@@ -2,6 +2,7 @@
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
+import { jwt } from "better-auth/plugins";
 
 const mongoUrl = process.env.MONGODB_URL;
 
@@ -32,7 +33,7 @@ export const auth = betterAuth({
 
     
       role: {
-        type: ["customer", "technician"],
+        type: ["customer", "technician", "admin"],
         required: false,
         defaultValue: "customer",
         // Must be client-settable so the register page can actually persist
@@ -54,6 +55,19 @@ export const auth = betterAuth({
       },
     },
   },
+  plugins: [
+    jwt({
+      jwt: {
+        expirationTime: "15m",
+
+        definePayload: ({ user }) => ({
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        }),
+      },
+    }),
+  ],
 
   database: mongodbAdapter(db, {
     client,

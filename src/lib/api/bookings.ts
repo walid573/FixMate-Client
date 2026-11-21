@@ -1,3 +1,6 @@
+'use server'
+
+
 // ---------------------------------------------------------------------------
 // Bookings API client.
 //
@@ -20,6 +23,11 @@
 // NOTE: the backend route does exist now; if you change the server payload,
 // update this interface too.
 // ---------------------------------------------------------------------------
+
+import { authFetch } from "../Session/server";
+
+
+
 
 export interface CreateBookingPayload {
   serviceId: string;
@@ -88,7 +96,7 @@ export const getBookings = async (
 export const createBooking = async (
   payload: CreateBookingPayload
 ): Promise<CreateBookingResponse> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
+  const res = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -128,7 +136,7 @@ export const cancelBooking = async (
   bookingId: string,
   customerEmail: string
 ): Promise<void> => {
-  const res = await fetch(
+  const res = await authFetch(
     `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/status`,
     {
       method: "PATCH",
@@ -150,7 +158,7 @@ export const cancelBooking = async (
 
 
 export const deleteBookings = async()=>{
-const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
+const res = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
     method: "DELETE",
     
   }); 
@@ -185,7 +193,7 @@ export const updateBookingStatus = async (
     body.finalAmount = finalAmount;
   }
 
-  const res = await fetch(
+  const res = await authFetch(
     `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/status`,
     {
       method: "PATCH",
@@ -220,7 +228,7 @@ export const updateFinalAmount = async (
   technicianEmail: string,
   finalAmount: number
 ): Promise<void> => {
-  const res = await fetch(
+  const res = await authFetch(
     `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/final-amount`,
     {
       method: "PATCH",

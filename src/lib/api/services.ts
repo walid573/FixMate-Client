@@ -1,3 +1,7 @@
+'use server'
+import { authFetch } from "../Session/server";
+
+
 export interface AddServiceData {
   title: string;
   category: string;
@@ -31,6 +35,10 @@ export interface Service {
   approvalStatus: string;
 }
 
+
+
+
+
 export const getFeaturedServices = async (): Promise<Service[]> => {
   try {
     const res = await fetch(`${process.env.BASE_URL}/feature-services`, {
@@ -49,9 +57,6 @@ export const getFeaturedServices = async (): Promise<Service[]> => {
     return [];
   }
 };
-
-
-
 
 // ---------------------------------------------------------------------------
 // Fetch services (server-side). Optionally filtered by technicianEmail so the
@@ -82,7 +87,7 @@ export const getServices = async (
 
 export const addService = async (serviceData: AddServiceData) => {
   try {
-    const res = await fetch(
+    const res = await authFetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/services`,
       {
         method: "POST",
@@ -157,7 +162,7 @@ export const updateService = async (
     >
   >
 ): Promise<Service> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/services`, {
+  const res = await authFetch(`${process.env.NEXT_PUBLIC_BASE_URL}/services`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -186,7 +191,7 @@ export const deleteService = async (
   id: string,
   technicianId: string
 ): Promise<void> => {
-  const res = await fetch(
+  const res = await authFetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}` +
       `?technicianId=${encodeURIComponent(technicianId)}`,
     {
@@ -212,7 +217,7 @@ export const updateApprovalStatus = async (
   id: string,
   status: "approved" | "rejected"
 ): Promise<Service> => {
-  const res = await fetch(
+  const res = await authFetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}/approval`,
     {
       method: "PATCH",
