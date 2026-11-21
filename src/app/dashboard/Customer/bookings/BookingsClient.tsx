@@ -29,6 +29,7 @@ import type { Booking } from "@/lib/api/bookings";
 import { isCancelled, paymentBadge, statusBadge } from "@/lib/booking-status";
 import BookingActionCell, { BadgePill } from "@/components/bookings/BookingActionCell";
 import CancelBookingDialog from "@/components/bookings/CancelBookingDialog";
+import PayRepairDialog from "./PayRepairDialog";
 
 // ---------------------------------------------------------------------------
 // My Bookings (customer)
