@@ -2,6 +2,7 @@ import React from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { authFetch } from "@/lib/Session/server";
 import ManageUsersClient from "./ManageUsersClient";
 
 // ---------------------------------------------------------------------------
@@ -18,7 +19,7 @@ export default async function ManageUsersPage() {
   // Note: admin check — adjust to your actual role check.
   // if (session?.user?.role !== "admin") redirect("/");
 
-  const res = await fetch(`${process.env.BASE_URL}/users`, {
+  const res = await authFetch(`/users`, {
     cache: "no-store",
   });
 

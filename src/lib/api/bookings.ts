@@ -65,8 +65,9 @@ export interface CreateBookingResponse {
 
 // ---------------------------------------------------------------------------
 // Fetch bookings for a customer (server-side) OR a technician.
-// The route GET /bookings?email=... OR GET /bookings?technicianEmail=...
-// is now implemented.
+// GET /bookings is protected: the server resolves the caller from the JWT and
+// returns only their own rows, so the token must be attached here. The email
+// args are kept for call-site compatibility.
 // ---------------------------------------------------------------------------
 
 export const getBookings = async (
@@ -74,12 +75,13 @@ export const getBookings = async (
   technicianEmail?: string
 ): Promise<Booking[]> => {
   try {
-    let url = `${process.env.BASE_URL}/bookings?`;
-    if (email) url += `email=${encodeURIComponent(email)}`;
-    else if (technicianEmail)
-      url += `technicianEmail=${encodeURIComponent(technicianEmail)}`;
+    const query = email
+      ? `?email=${encodeURIComponent(email)}`
+      : technicianEmail
+      ? `?technicianEmail=${encodeURIComponent(technicianEmail)}`
+      : "";
 
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await authFetch(`/bookings${query}`);
 
     if (!res.ok) {
       throw new Error("Failed to fetch bookings");

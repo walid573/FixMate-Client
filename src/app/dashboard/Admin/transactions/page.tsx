@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { authFetch } from "@/lib/Session/server";
 import ManageTransactionsClient from "./ManageTransactionsClient";
 
 // ---------------------------------------------------------------------------
@@ -16,7 +17,7 @@ export default async function TransactionsPage() {
   // Admin guard (commented out for demo — enable in production)
   // if (session?.user?.role !== "admin") redirect("/");
 
-  const res = await fetch(`${process.env.BASE_URL}/payments/all`, {
+  const res = await authFetch(`/payments/all`, {
     cache: "no-store",
   });
   const payments = res.ok ? await res.json() : [];

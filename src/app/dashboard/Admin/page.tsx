@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { ArrowRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
+import { authFetch } from "@/lib/Session/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BadgePill } from "@/components/bookings/BookingActionCell";
@@ -87,10 +88,10 @@ export default async function AdminPage() {
   // }
 
   const [usersRes, servicesRes, bookingsRes, paymentsRes] = await Promise.all([
-    fetch(`${process.env.BASE_URL}/users`, { cache: "no-store" }),
-    fetch(`${process.env.BASE_URL}/services`, { cache: "no-store" }),
-    fetch(`${process.env.BASE_URL}/bookings/all`, { cache: "no-store" }),
-    fetch(`${process.env.BASE_URL}/payments/all`, { cache: "no-store" }),
+    authFetch(`/users`, { cache: "no-store" }),
+    authFetch(`/services`, { cache: "no-store" }),
+    authFetch(`/bookings/all`, { cache: "no-store" }),
+    authFetch(`/payments/all`, { cache: "no-store" }),
   ]);
 
   const users: UserRow[] = usersRes.ok ? await usersRes.json() : [];

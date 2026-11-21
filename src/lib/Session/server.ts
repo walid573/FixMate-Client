@@ -34,7 +34,12 @@ export async function authFetch(
     h.set("Content-Type", "application/json");
   }
 
-  return fetch(`${process.env.BASE_URL}${path}`, {
+  // `path` may already be an absolute URL (some callers pass
+  // `${NEXT_PUBLIC_API_URL}/bookings`), in which case we must not prepend
+  // BASE_URL again, or the URL gets doubled (e.g. ...8000http://...8000/...).
+  const url = /^https?:\/\//i.test(path) ? path : `${process.env.BASE_URL}${path}`;
+
+  return fetch(url, {
     cache: "no-store",
     ...init,
     headers: h,
