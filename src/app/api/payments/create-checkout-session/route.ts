@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { signApiToken } from "@/lib/jwt";
 
 // ---------------------------------------------------------------------------
 // POST /api/payments/create-checkout-session
@@ -11,11 +10,12 @@ import { signApiToken } from "@/lib/jwt";
 // Session with the amount stored on the booking document (never an amount
 // sent from the browser).
 //
-// This runs on the server, so instead of calling /api/token it signs the
-// backend JWT directly from the session we already resolved above.
+// This runs on the server, so it takes the backend JWT straight from
+// better-auth's token endpoint instead of calling it over HTTP.
 // ---------------------------------------------------------------------------
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const requestHeaders = await headers();
+  const session = await auth.api.getSession({ headers: requestHeaders });
   const email = session?.user?.email;
 
   if (!email || !session?.user?.id) {
@@ -29,12 +29,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "bookingId is required." }, { status: 400 });
   }
 
-  const token = signApiToken({
-    sub: session.user.id,
-    email,
-    role: (session.user as { role?: string }).role,
-    name: session.user.name,
-  });
+  const { token } = await auth.api.getToken({ headers: requestHeaders });
 
   const res = await fetch(`${process.env.BASE_URL}/payments/checkout-session`, {
     method: "POST",

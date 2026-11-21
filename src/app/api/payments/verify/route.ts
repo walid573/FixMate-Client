@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { signApiToken } from "@/lib/jwt";
 
 // ---------------------------------------------------------------------------
 // GET /api/payments/verify?session_id=...
@@ -9,10 +8,12 @@ import { signApiToken } from "@/lib/jwt";
 // the backend settle the payment — idempotently, so the same payment is
 // never saved twice (page refresh, retries, or a future webhook).
 //
-// Server-side, so the backend JWT is signed directly from the session.
+// Server-side, so the backend JWT comes straight from better-auth's token
+// endpoint without an HTTP round-trip.
 // ---------------------------------------------------------------------------
 export async function GET(request: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const requestHeaders = await headers();
+  const session = await auth.api.getSession({ headers: requestHeaders });
   const email = session?.user?.email;
 
   if (!email || !session?.user?.id) {
@@ -28,12 +29,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "session_id is required." }, { status: 400 });
   }
 
-  const token = signApiToken({
-    sub: session.user.id,
-    email,
-    role: (session.user as { role?: string }).role,
-    name: session.user.name,
-  });
+  const { token } = await auth.api.getToken({ headers: requestHeaders });
 
   const res = await fetch(`${process.env.BASE_URL}/payments/verify`, {
     method: "POST",

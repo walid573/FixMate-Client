@@ -11,11 +11,6 @@ interface UpdateUserRoleResult {
   message: string;
 }
 
-const jwtResult = await auth.api.getToken({
-  headers: await headers(),
-});
-
-const token = jwtResult.token;
 export async function updateUserRole(
   userId: string,
   role: UserRole
@@ -28,9 +23,13 @@ export async function updateUserRole(
       };
     }
 
+    // Must run per request: `headers()` is only valid inside a request scope,
+    // and a token cached at module load would expire after 15 minutes.
+    const requestHeaders = await headers();
+
     // Get authenticated session
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: requestHeaders,
     });
 
     if (!session) {
@@ -39,6 +38,8 @@ export async function updateUserRole(
         message: "Unauthorized. Please login again.",
       };
     }
+
+    const { token } = await auth.api.getToken({ headers: requestHeaders });
 
     // Call Express backend
     const response = await fetch(

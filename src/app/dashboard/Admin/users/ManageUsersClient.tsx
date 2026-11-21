@@ -77,7 +77,7 @@ export default function ManageUsersClient({initialUsers,currentUserEmail,}: {ini
   );
 
   async function handleRoleChange(userId: string, nextRole: string) {
-    await updateRole(userId, nextRole);
+    await updateRole(userId, nextRole as User["role"]);
     router.refresh()
   }
 
