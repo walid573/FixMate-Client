@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { authFetch } from "@/lib/Session/server";
 import { redirect } from "next/navigation";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 import ManageServicesClient from "./ManageServicesClient";
@@ -14,7 +15,11 @@ export default async function ManageServicesPage() {
   //   redirect("/");
   // }
 
-  const res = await fetch(`${process.env.BASE_URL}/services`, { cache: "no-store" });
+  // Send the admin token: the public catalogue endpoint only returns
+  // approved+available services to anonymous/customer callers.
+  const res = await authFetch(`${process.env.BASE_URL}/services`, {
+    cache: "no-store",
+  });
   const services = res.ok ? await res.json() : [];
 
   return (

@@ -2,7 +2,7 @@
 // Client component for the booking / repair request form.
 //
 // Handles:
-// - Role restrictions (unauthenticated -> redirect to /login; tech/admin ->
+// - Role restrictions (unauthenticated -> redirect to /sign-in; tech/admin ->
 //   disabled notice; customer -> opens the request form).
 // - Form validation (phone, address, preferredDate >= today, problemDescription >= 20 chars).
 // - Submitting via createBooking API, showing success toast with a link to

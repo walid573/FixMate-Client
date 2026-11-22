@@ -98,12 +98,30 @@ export const getServicesByQuery = async (
   }
 };
 
-// Existing callers (technician dashboards) keep the old signature.
+// Technician dashboards need to see their own listings in every status
+// (pending/rejected/unavailable), so send the auth token. The server scopes
+// technicians to their own services; anonymous/public callers only ever get
+// approved + available ones.
 export const getServices = async (
   technicianEmail?: string,
   technicianId?: string
-): Promise<Service[]> =>
-  getServicesByQuery({ technicianEmail, technicianId });
+): Promise<Service[]> => {
+  try {
+    const params = new URLSearchParams();
+    if (technicianEmail) params.set("technicianEmail", technicianEmail);
+    if (technicianId) params.set("technicianId", technicianId);
+    const qs = params.toString();
+    const res = await authFetch(
+      `${process.env.BASE_URL}/services${qs ? `?${qs}` : ""}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return [];
+    return (await res.json()) as Service[];
+  } catch (error) {
+    console.error("Failed to fetch services:", error);
+    return [];
+  }
+};
 
 // Distinct categories of bookable services — used to populate the dropdown
 // on /services without fetching the whole catalogue on every keystroke.
@@ -147,16 +165,53 @@ export const addService = async (serviceData: AddServiceData) => {
   }
 };
 
+// Public, non-sensitive technician profile shown on service detail pages.
+export interface PublicTechnician {
+  _id: string;
+  name: string;
+  image: string;
+  area: string;
+  bio: string;
+}
+
+export const getTechnicianProfile = async ({
+  id,
+  email,
+}: {
+  id?: string;
+  email?: string;
+}): Promise<PublicTechnician | null> => {
+  try {
+    const params = new URLSearchParams();
+    if (id) params.set("id", id);
+    if (email) params.set("email", email);
+    if (!params.toString()) return null;
+
+    const res = await fetch(`${process.env.BASE_URL}/technicians?${params}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as PublicTechnician;
+  } catch (error) {
+    console.error("Failed to fetch technician:", error);
+    return null;
+  }
+};
+
 // ---------------------------------------------------------------------------
 // Fetch a single service by id (SERVER-side, used by the edit page).
 // Returns null when the id is invalid or the service does not exist, so the
 // page can call notFound().
 // ---------------------------------------------------------------------------
-export const getServiceById = async (id: string): Promise<Service | null> => {
+export const getServiceById = async (
+  id: string,
+  authenticated = false
+): Promise<Service | null> => {
   try {
-    const res = await fetch(`${process.env.BASE_URL}/services/${id}`, {
-      cache: "no-store",
-    });
+    const url = `${process.env.BASE_URL}/services/${id}`;
+    const res = authenticated
+      ? await authFetch(url, { cache: "no-store" })
+      : await fetch(url, { cache: "no-store" });
 
     if (!res.ok) {
       return null;

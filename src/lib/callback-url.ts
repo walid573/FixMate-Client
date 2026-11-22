@@ -16,3 +16,15 @@ export function withCallbackUrl(path: string, callback: string): string {
     ? `${path}?callbackUrl=${encodeURIComponent(callback)}`
     : path;
 }
+
+const DASHBOARDS: Record<string, string> = {
+  customer: "/dashboard/customer",
+  technician: "/dashboard/technician",
+  admin: "/dashboard/admin",
+};
+
+// Landing page after auth: where the user was heading wins, otherwise their
+// own role dashboard. Unknown roles fall back to "customer".
+export function getPostAuthUrl(role?: string | null): string {
+  return DASHBOARDS[role ?? ""] ?? DASHBOARDS.customer;
+}

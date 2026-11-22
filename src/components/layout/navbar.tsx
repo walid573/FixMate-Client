@@ -45,7 +45,7 @@ export function Navbar() {
                 Sign In
               </Link>
               <Link href="/sign-up" className={getStartedClass}>
-                Get Started
+                Sign Up
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </>

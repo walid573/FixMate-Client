@@ -78,7 +78,7 @@ async function FeaturedServicesContent() {
                   {/* Details Button */}
                   <div className="mt-auto pt-4">
                     <Link
-                      href={`/service/${service._id}`}
+                      href={`/services/${service._id}`}
                       className={detailsClass}
                     >
                       View Details

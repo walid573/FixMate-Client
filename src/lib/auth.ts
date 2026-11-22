@@ -1,16 +1,11 @@
 import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
+import { mongoClient } from "./mongo";
 import { jwt } from "better-auth/plugins";
 import jwtSign from "jsonwebtoken";
 
-const mongoUrl = process.env.MONGODB_URL;
 const baseURL = process.env.BETTER_AUTH_URL;
 const jwtSecret = process.env.JWT_SECRET;
-
-if (!mongoUrl) {
-  throw new Error("MONGODB_URL is not configured");
-}
 
 if (!baseURL) {
   throw new Error("BETTER_AUTH_URL is not configured");
@@ -20,19 +15,24 @@ if (!jwtSecret) {
   throw new Error("JWT_SECRET is not configured");
 }
 
-const mongoClient = new MongoClient(mongoUrl);
-
 export const auth = betterAuth({
   baseURL,
 
   // Origins allowed to call the auth API. Without the right one here the
-  // browser gets "Invalid origin" on sign-in.
+  // browser gets "Invalid origin" on sign-in. The production domain is
+  // included explicitly because the earlier preview URL redirects to it.
   trustedOrigins: [
     baseURL,
     process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
     process.env.CLIENT_URL,
+    process.env.CLIENT_URLS,
+    "https://fixmate-client24.vercel.app",
+    "https://fixmate-client-wine.vercel.app",
     "http://localhost:3000",
-  ].filter((o): o is string => Boolean(o)),
+  ]
+    .flatMap((value) => (value || "").split(","))
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean),
 
   emailAndPassword: {
     enabled: true,
@@ -80,10 +80,16 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
+        // Server-side guard: only "customer" and "technician" may be chosen at
+        // signup. Anything else (admin, a typo, a hand-crafted request) is
+        // stored as "customer" — the UI hiding the admin option is not enough.
         before: async (user) => ({
           data: {
             ...user,
-            role: user.role === "admin" ? "customer" : user.role,
+            role:
+              user.role === "customer" || user.role === "technician"
+                ? user.role
+                : "customer",
           },
         }),
       },

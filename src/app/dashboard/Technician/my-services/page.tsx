@@ -24,7 +24,7 @@ export default async function MyServicesPage() {
   });
 
   if (!session?.user?.id) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const allServices = await getServices(session.user.email, session.user.id);

@@ -77,7 +77,7 @@ export function TechnicianCta() {
             </li>
           </ul>
 
-          <Link href="/register" className={cn(ctaClass, "mt-8")}>
+          <Link href="/sign-up" className={cn(ctaClass, "mt-8")}>
             Become a Technician
           </Link>
         </div>

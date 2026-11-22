@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { MongoClient, ObjectId } from "mongodb";
-
-const mongoUrl = process.env.MONGODB_URL;
+import { mongoClient } from "@/lib/mongo";
+import { ObjectId } from "mongodb";
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,18 +30,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update the user's role in MongoDB
-    if (!mongoUrl) {
-      return NextResponse.json(
-        { error: "Database not configured" },
-        { status: 500 }
-      );
-    }
-
-    const client = new MongoClient(mongoUrl);
-    await client.connect();
-    const db = client.db("fixmate");
-    const users = db.collection("users");
+    // Reuse the single pooled client — opening a fresh connection on every
+    // request quickly exhausts the Atlas connection limit.
+    const users = mongoClient.db("fixmate").collection("users");
 
     // Better-auth stores user IDs as strings, but MongoDB might use ObjectId
     let userId = session.user.id;
@@ -62,8 +52,6 @@ export async function POST(request: NextRequest) {
         },
       }
     );
-
-    await client.close();
 
     if (result.matchedCount === 0) {
       return NextResponse.json(

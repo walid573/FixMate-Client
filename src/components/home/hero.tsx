@@ -56,7 +56,7 @@ export function Hero() {
                 <ArrowRight className="size-4" aria-hidden="true" />
               </span>
             </Link>
-            <Link href="/register" className={becomeClass}>
+            <Link href="/sign-up" className={becomeClass}>
               Become a Technician
             </Link>
           </div>

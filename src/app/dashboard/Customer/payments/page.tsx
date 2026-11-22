@@ -14,7 +14,7 @@ export default async function PaymentsPage() {
   });
 
   if (!session?.user?.email) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   // Server-side fetch WITH the backend JWT (the /payments route is protected)

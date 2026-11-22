@@ -22,10 +22,12 @@ export default async function EditServicePage({ params }: PageProps) {
   });
 
   if (!session?.user?.id) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
-  const service = await getServiceById(id);
+  // Authenticated lookup: technicians must be able to load their own
+  // pending/rejected listings, which are hidden from the public catalogue.
+  const service = await getServiceById(id, true);
 
   if (!service) {
     notFound();

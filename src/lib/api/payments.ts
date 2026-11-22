@@ -78,6 +78,7 @@ export interface VerifyPaymentResult {
   amount?: number;
   transactionId?: string;
   serviceTitle?: string;
+  receiptUrl?: string;
 }
 
 export async function verifyCheckoutSession(

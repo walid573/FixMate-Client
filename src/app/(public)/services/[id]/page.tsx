@@ -19,7 +19,7 @@ import { notFound } from "next/navigation";
 import { Clock, MapPin, Wrench, ArrowLeft, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { getServices, type Service } from "@/lib/api/services";
+import { getServiceById, getTechnicianProfile } from "@/lib/api/services";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import RequestRepairSection from "./RequestRepairSection";
@@ -53,9 +53,13 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
     ? { user: authSession.user as SessionUser }
     : null;
 
-  // Fetch all services and find the matching one
-  const services = await getServices();
-  const service = services.find((s) => s._id === id);
+  // Fetch this one service on the server, then load the technician's public
+  // profile (photo / area / bio) which is not part of the service document.
+  const service = await getServiceById(id);
+  const technician = service
+    ? (await getTechnicianProfile({ email: service.technicianEmail })) ??
+      (await getTechnicianProfile({ id: service.technicianId }))
+    : null;
 
   // If service does not exist, or is not approved, or is not available, show Not Found
   if (
@@ -117,12 +121,23 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
             </h1>
           </div>
 
-          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 ring-2 ring-slate-200 text-lg">
-              {techInitials}
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-brand-navy">{techName}</h3>
+          <div className="flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            {technician?.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={technician.image}
+                alt={technician.name || techName}
+                className="size-14 shrink-0 rounded-full object-cover ring-2 ring-slate-200"
+              />
+            ) : (
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-700 ring-2 ring-slate-200 text-lg">
+                {techInitials}
+              </div>
+            )}
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-brand-navy">
+                {technician?.name || techName}
+              </h3>
               <p className="mt-0.5 text-xs text-slate-500 flex items-center gap-1.5">
                 <span className="inline-flex items-center text-amber-500 font-semibold">
                   <Star className="size-3.5 fill-amber-400 text-amber-400 mr-0.5" />
@@ -131,10 +146,15 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                 <span>·</span>
                 <span className="text-slate-600 font-medium">Verified technician</span>
               </p>
-              {service.serviceArea && (
+              {(technician?.area || service.serviceArea) && (
                 <p className="mt-1 text-xs text-slate-400 flex items-center gap-1">
                   <MapPin className="size-3" />
-                  {service.serviceArea}
+                  {technician?.area || service.serviceArea}
+                </p>
+              )}
+              {technician?.bio && (
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {technician.bio}
                 </p>
               )}
             </div>
@@ -147,7 +167,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
               {service.description}
             </p>
 
-            <div className="grid grid-cols-3 gap-4 border-t border-slate-100 pt-5">
+            <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
               <div>
                 <p className="text-xs font-medium text-slate-400">Duration</p>
                 <p className="mt-1 text-sm font-semibold text-brand-navy flex items-center gap-1.5">
@@ -169,6 +189,13 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                 <p className="mt-1 text-sm font-semibold text-brand-navy flex items-center gap-1.5">
                   <Wrench className="size-4 text-slate-400" />
                   {service.serviceMode}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-slate-400">Starting price</p>
+                <p className="mt-1 text-sm font-semibold text-brand-navy">
+                  ${service.basePrice.toLocaleString("en-US")}
                 </p>
               </div>
             </div>

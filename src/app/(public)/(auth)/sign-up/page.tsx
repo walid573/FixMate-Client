@@ -21,7 +21,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { getSafeCallbackUrl } from "@/lib/callback-url";
+import {
+  getPostAuthUrl,
+  getSafeCallbackUrl,
+  withCallbackUrl,
+} from "@/lib/callback-url";
 import { useToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/lib/upload-image";
@@ -108,14 +112,15 @@ export default function RegisterPage() {
     e.preventDefault();
     setSubmitAttempted(true);
 
-     let imageUrl = "";
+    // Never upload a photo or call the API for an invalid form (especially an
+    // invalid password) — surface the inline field errors first.
+    if (Object.keys(errors).length > 0) return;
+    if (!confirmMatches) return;
 
+    let imageUrl = "";
     if (profileImage) {
       imageUrl = await uploadImage(profileImage);
     }
-
-    if (Object.keys(errors).length > 0) return;
-    if (!confirmMatches) return;
 
     const { data: resData, error } =
       await authClient.signUp.email({
@@ -136,7 +141,8 @@ export default function RegisterPage() {
     }
 
     pushToast("Account created successfully!", "success");
-    router.push(getSafeCallbackUrl());
+    // Where the user was heading wins; otherwise go to their role dashboard.
+    router.push(getSafeCallbackUrl(getPostAuthUrl(role)));
     router.refresh();
     console.log(resData);
   };
@@ -147,8 +153,8 @@ export default function RegisterPage() {
     
     await authClient.signIn.social({
       provider: "google",
-      // Preserve the page the user was on when they were asked to log in.
-      callbackURL: getSafeCallbackUrl(),
+      // Preserve where the user was heading; Google users are customers by default.
+      callbackURL: getSafeCallbackUrl(getPostAuthUrl("customer")),
     });
   };
 
@@ -558,15 +564,18 @@ export default function RegisterPage() {
         {/* Footer login prompt */}
         <p className="mt-6 text-center text-xs text-slate-500">
           Already have an account?{" "}
-          <Link href="/login" className="font-semibold text-brand-orange-ink hover:underline">
-            Login
+          <Link
+            href={withCallbackUrl("/sign-in", getSafeCallbackUrl())}
+            className="font-semibold text-brand-orange-ink hover:underline"
+          >
+            Sign In
           </Link>
         </p>
 
         {/* Security footnote */}
         <p className="mt-6 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
           <Lock className="size-3" aria-hidden="true" />
-          Your role is saved as {role === "technician" ? "Technician" : "Customer"} on this device
+          Google accounts join as customers by default.
         </p>
       </div>
     </main>

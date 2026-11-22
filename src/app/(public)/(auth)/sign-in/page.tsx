@@ -9,7 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { getSafeCallbackUrl, withCallbackUrl } from "@/lib/callback-url";
+import {
+  getPostAuthUrl,
+  getSafeCallbackUrl,
+  withCallbackUrl,
+} from "@/lib/callback-url";
 import { useToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 
@@ -18,19 +22,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const router = useRouter()
   const pushToast = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries()) as {
-      email: string;
-      password: string;
-    };
+
+    // Validate before calling the API so obvious mistakes get inline feedback.
+    const nextErrors: { email?: string; password?: string } = {};
+    if (!email.trim()) nextErrors.email = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      nextErrors.email = "Enter a valid email address.";
+    if (!password) nextErrors.password = "Password is required.";
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      pushToast("Please fix the highlighted fields.", "error");
+      return;
+    }
+
     const { data: resData, error } = await authClient.signIn.email({
-      email: data.email,
-      password: data.password,
+      email: email.trim(),
+      password,
     });
 
     if (error) {
@@ -47,15 +60,18 @@ export default function LoginPage() {
     );
     
     // Return to the page the user came from (e.g. a service detail page they
-    // tried to book before logging in), never to an external URL.
-    router.push(getSafeCallbackUrl());
+    // tried to book before logging in); otherwise go to their own dashboard.
+    // The fallback is validated here, and getSafeCallbackUrl blocks open redirects.
+    const fallback = getPostAuthUrl(resData?.user?.role);
+    router.push(getSafeCallbackUrl(fallback));
     router.refresh();
   };
 
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: getSafeCallbackUrl(),
+      // Google users get the customer role by default.
+      callbackURL: getSafeCallbackUrl(getPostAuthUrl("customer")),
     });
   };
 
@@ -95,12 +111,19 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                }}
                 placeholder="you@example.com"
+                aria-invalid={!!errors.email || undefined}
                 className="pl-9"
                 required
               />
             </div>
+            {errors.email && (
+              <p className="text-xs text-destructive">{errors.email}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -128,8 +151,13 @@ export default function LoginPage() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password)
+                    setErrors((p) => ({ ...p, password: undefined }));
+                }}
                 placeholder="Enter your password"
+                aria-invalid={!!errors.password || undefined}
                 className="pl-9 pr-9"
                 required
               />
@@ -146,6 +174,9 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-xs text-destructive">{errors.password}</p>
+            )}
           </div>
 
           {/* Remember me */}
@@ -196,11 +227,15 @@ export default function LoginPage() {
             />
             <path
               fill="#34A853"
-              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.21 21.34 7.32 24 12 24 z"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.19v3.15C3.21 21.34 7.32 24 12 24z"
             />
             <path
               fill="#FBBC05"
-              d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.88 0 12s.43 3.85 1.19 5.39l4.08-3.15c.95-2.85 3.6-4.96 6.73-4.96z"
+              d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.19C.43 8.15 0 9.88 0 12s.43 3.85 1.19 5.39l4.08-3.15z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.32 0 3.21 2.66 1.19 6.61l4.08 3.15c.95-2.85 3.6-4.96 6.73-4.96z"
             />
           </svg>
           Continue with Google

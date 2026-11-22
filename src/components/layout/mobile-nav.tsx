@@ -1,7 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowRight,
   LayoutDashboard,
@@ -37,6 +38,42 @@ const getStartedClass = cn(
   buttonVariants({ variant: "default", size: "lg" }),
   "h-11 w-full rounded-full bg-brand-orange px-5 font-semibold text-brand-navy hover:bg-brand-orange/90 focus-visible:ring-white/40",
 );
+
+// Kept in its own Suspense-wrapped component so usePathname() doesn't run
+// during prerendering of the public layout (same pattern as DesktopNav).
+function MobileNavLinks() {
+  const pathname = usePathname();
+
+  return (
+    <ul className="flex flex-col gap-1">
+      {NAV_ITEMS.map((item) => {
+        const isActive =
+          item.href === "/"
+            ? pathname === "/"
+            : pathname.startsWith(item.href);
+
+        return (
+          <li key={item.href}>
+            <SheetClose
+              render={
+                <Link
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    menuLinkClass,
+                    isActive && "bg-white/10 font-semibold text-white",
+                  )}
+                />
+              }
+            >
+              {item.label}
+            </SheetClose>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export function MobileNav() {
   const router = useRouter();
@@ -80,17 +117,11 @@ export function MobileNav() {
         </SheetHeader>
 
         <nav aria-label="Mobile" className="px-4">
-          <ul className="flex flex-col gap-1">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
-                <SheetClose
-                  render={<Link href={item.href} className={menuLinkClass} />}
-                >
-                  {item.label}
-                </SheetClose>
-              </li>
-            ))}
-          </ul>
+          <Suspense
+            fallback={<p className="px-3 py-2.5 text-sm text-white/60">Loading…</p>}
+          >
+            <MobileNavLinks />
+          </Suspense>
         </nav>
 
         {/* Footer reflects the session, just like the desktop navbar. */}
@@ -154,7 +185,7 @@ export function MobileNav() {
                 <SheetClose
                   render={<Link href="/sign-up" className={getStartedClass} />}
                 >
-                  Get Started
+                  Sign Up
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </SheetClose>
               </>

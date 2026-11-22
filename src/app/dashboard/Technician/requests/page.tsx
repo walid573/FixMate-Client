@@ -8,7 +8,7 @@ import { getSessionServer } from "@/lib/Session/server";
 export default async function BookingRequestPage() {
   const session = await getSessionServer()
   if (!session?.user?.email) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const bookings = await getBookings(undefined, session.user.email);

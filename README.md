@@ -777,9 +777,9 @@ The following accounts can be used to evaluate the application.
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | [Add Admin Email] | [Add Admin Password] |
-| Technician | [Add Technician Email] | [Add Technician Password] |
-| Customer | [Add Customer Email] | [Add Customer Password] |
+| Admin | `admin@tech.com` | `Admin123` |
+| Technician | `technician@tech.com` | `technician123` |
+| Customer | `customer@tech.com` | `Customer123` |
 
 > Ensure these accounts are registered in the production database and assigned the correct application roles before submitting the project.
 
@@ -904,7 +904,7 @@ refactor: organize booking API functions
 - [x] Database architecture is documented.
 - [x] Environment variables are explained.
 - [x] Installation instructions are provided.
-- [ ] Admin testing credentials are included.
+- [x] Admin testing credentials are included.
 - [x] Deployment instructions are documented.
 
 ---

@@ -8,7 +8,7 @@ export function HowItWorks() {
           How It Works
         </h2>
 
-        <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {HOW_IT_WORKS_STEPS.map((step, index) => (
             <li
               key={step.title}

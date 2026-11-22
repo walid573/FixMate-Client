@@ -26,7 +26,7 @@ export default async function TechnicianPage() {
   });
 
   if (!session?.user?.email) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const technicianEmail = session.user.email;

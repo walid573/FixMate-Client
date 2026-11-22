@@ -4,6 +4,8 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+import { Logo } from "@/components/layout/logo";
+
 import {
   LayoutDashboard,
   UserRound,
@@ -169,9 +171,7 @@ const items = menuItemByRole[role];
               render={<Link href="/" />}
               className="h-10"
             >
-              <span className="text-xl font-extrabold tracking-tight text-brand-navy">
-                Fix<span className="text-brand-orange">Mate</span>
-              </span>
+              <Logo variant="light" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

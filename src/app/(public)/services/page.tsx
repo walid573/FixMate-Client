@@ -155,7 +155,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
           {services.map((service) => (
             <div
               key={service._id}
-              className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm transition hover:shadow-md"
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm transition hover:shadow-md"
             >
               <div className="flex h-48 w-full items-center justify-center rounded-t-2xl bg-[#e8eef5]">
                 {service.image && service.image.startsWith("http") ? (
@@ -172,7 +172,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
                 )}
               </div>
 
-              <div className="p-5">
+              <div className="flex flex-1 flex-col p-5">
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                     {service.category}
@@ -195,7 +195,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
                 </p>
 
                 <Button
-                  className="mt-4 h-10 w-full rounded-xl bg-brand-orange font-semibold text-brand-navy shadow-sm hover:bg-brand-orange/90"
+                  className="mt-auto h-10 w-full rounded-xl bg-brand-orange font-semibold text-brand-navy shadow-sm hover:bg-brand-orange/90"
                   render={<Link href={`/services/${service._id}`} />}
                 >
                   View Details

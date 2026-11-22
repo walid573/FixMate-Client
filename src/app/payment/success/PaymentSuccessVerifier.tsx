@@ -124,6 +124,17 @@ export default function PaymentSuccessVerifier({
         </div>
       </div>
 
+      {result.receiptUrl && (
+        <Button
+          className="mt-2 w-full bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/90"
+          onClick={() =>
+            window.open(result.receiptUrl, "_blank", "noopener,noreferrer")
+          }
+        >
+          View Receipt
+        </Button>
+      )}
+
       <div className="mt-2">{backToBookings}</div>
     </Shell>
   );

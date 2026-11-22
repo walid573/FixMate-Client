@@ -5,10 +5,12 @@ import { cn } from "@/lib/utils";
 
 interface LogoProps {
   className?: string;
+  /** Use on light backgrounds (e.g. the dashboard sidebar). */
+  variant?: "dark" | "light";
 }
 
 
-export function Logo({ className }: LogoProps) {
+export function Logo({ className, variant = "dark" }: LogoProps) {
   return (
     <Link
       href="/"
@@ -22,7 +24,7 @@ export function Logo({ className }: LogoProps) {
         <Wrench className="size-5 -rotate-12" aria-hidden="true" />
       </span>
       <span className="text-xl font-bold tracking-tight">
-        <span className="text-white">Fix</span>
+        <span className={variant === "light" ? "text-brand-navy" : "text-white"}>Fix</span>
         <span className="text-brand-orange [text-shadow:0_0_14px_rgba(255,150,61,0.45)]">
           Mate
         </span>

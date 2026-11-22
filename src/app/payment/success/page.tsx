@@ -44,7 +44,7 @@ export default async function PaymentSuccessPage({
               Your payment will show up in My Bookings once you sign in.
             </p>
             <div className="mt-2 flex flex-col gap-2">
-              <Button render={<Link href="/login" />}>Sign in</Button>
+              <Button render={<Link href="/sign-in" />}>Sign in</Button>
               {backToBookings}
             </div>
           </CardContent>

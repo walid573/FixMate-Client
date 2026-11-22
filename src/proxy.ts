@@ -1,6 +1,5 @@
 
 import { NextResponse, type NextRequest } from "next/server";
-import { auth } from "./lib/auth";
 
 type Role = "customer" | "technician" | "admin";
 
@@ -22,6 +21,23 @@ const ROLE_ROUTES: Record<string, Role> = {
 const matches = (pathname: string, route: string) =>
   pathname === route || pathname.startsWith(`${route}/`);
 
+// The proxy runtime cannot use the Node MongoDB driver directly (that path
+// fails with "Topology is closed"). /api/auth/get-session runs in the normal
+// Node serverless runtime and works reliably, so ask it instead.
+async function getSession(request: NextRequest) {
+  try {
+    const res = await fetch(new URL("/api/auth/get-session", request.url), {
+      headers: { cookie: request.headers.get("cookie") ?? "" },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.user ? data : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -32,9 +48,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/sign-in" || pathname === "/sign-up";
 
 
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  const session = await getSession(request);
 
 
   if (!session) {

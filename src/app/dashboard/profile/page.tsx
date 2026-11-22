@@ -24,7 +24,7 @@ export default async function SharedProfilePage() {
   });
 
   if (!session?.user?.email) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const user = session.user;

@@ -13,7 +13,7 @@ export default async function BookingsPage() {
   });
 
   if (!session?.user?.email) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   const bookings = await getBookings(session.user.email);
