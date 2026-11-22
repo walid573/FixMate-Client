@@ -145,14 +145,14 @@ export default function About() {
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/" className={exploreClass}>
+                <Link href="/services" className={exploreClass}>
                   Explore Services
                   <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy text-white">
                     <ArrowRight className="size-4" />
                   </span>
                 </Link>
 
-                <Link href="/register" className={becomeClass}>
+                <Link href="/sign-up" className={becomeClass}>
                   Become a Technician
                 </Link>
               </div>
@@ -378,7 +378,7 @@ export default function About() {
               </Link>
 
               <Link
-                href="/register"
+                href="/sign-up"
                 className="inline-flex h-12 items-center justify-center rounded-full border border-white/60 px-5 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-brand-navy"
               >
                 Become a Technician

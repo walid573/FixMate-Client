@@ -17,8 +17,7 @@ export default async function ManageUsersPage() {
     headers: await headers(),
   });
 
-  // Note: admin check — adjust to your actual role check.
-  // if (session?.user?.role !== "admin") redirect("/");
+  if (session?.user?.role !== "admin") redirect("/forbidden");
 
   const res = await authFetch(`/users`, {
     cache: "no-store",

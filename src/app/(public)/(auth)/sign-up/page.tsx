@@ -214,7 +214,7 @@ export default function RegisterPage() {
                 <User className="size-4" aria-hidden="true" />
               </span>
               <Input
-                id="FullName"
+                id="fullName"
                 name="name"
                 type="text"
                 value={fullName}
@@ -501,13 +501,13 @@ export default function RegisterPage() {
               className="text-xs font-normal leading-relaxed text-slate-500"
             >
               I agree to the{" "}
-              <Link href="/terms" className="font-semibold text-brand-orange-ink hover:underline">
+              <span className="font-semibold text-brand-orange-ink">
                 Terms of Service
-              </Link>{" "}
+              </span>{" "}
               and{" "}
-              <Link href="/privacy" className="font-semibold text-brand-orange-ink hover:underline">
+              <span className="font-semibold text-brand-orange-ink">
                 Privacy Policy
-              </Link>
+              </span>
             </Label>
           </div>
           {showError("terms") && (

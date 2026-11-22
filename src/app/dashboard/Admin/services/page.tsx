@@ -10,10 +10,7 @@ export default async function ManageServicesPage() {
     headers: await headers(),
   });
 
-  // Admin guard (commented out for demo — enable in production)
-  // if (session?.user?.role === "admin") {
-  //   redirect("/");
-  // }
+  if (session?.user?.role !== "admin") redirect("/forbidden");
 
   // Send the admin token: the public catalogue endpoint only returns
   // approved+available services to anonymous/customer callers.

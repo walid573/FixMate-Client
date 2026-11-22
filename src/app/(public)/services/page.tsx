@@ -32,7 +32,8 @@ export default async function ServicesPage({ searchParams }: PageProps) {
     : "newest";
   // Canonicalise both the URL value and the API values so the dropdown never
   // shows aliases like "ac" next to "AC" or "laptop" next to "Laptop & PC".
-  const selectedCategory = canonicalCategory(category);
+  const selectedCategory =
+    category === "all" ? undefined : canonicalCategory(category);
 
   // Everything below is executed by MongoDB in GET /services. The URL is the
   // single source of truth, so filters survive a reload and a home-page

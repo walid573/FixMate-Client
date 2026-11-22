@@ -7,7 +7,7 @@ A full-stack repair service platform that connects customers with skilled techni
 | 🌐 Live Website | [https://fixmate-client24.vercel.app/](https://fixmate-client24.vercel.app/) |
 | 💻 Client Repository | [https://github.com/walid573/FixMate-Client](https://github.com/walid573/FixMate-Client) |
 | ⚙️ Server Repository | [https://github.com/walid573/FixMate-Server](https://github.com/walid573/FixMate-Server) |
-| 🔌 Live Backend API | [Add Backend API URL](#) |
+| 🔌 Live Backend API | [https://fix-mate-server-topaz.vercel.app](https://fix-mate-server-topaz.vercel.app) |
 
 ---
 
@@ -146,7 +146,7 @@ FixMate uses modern frontend and backend technologies to provide a scalable and 
 | **Payment Gateway** | Stripe |
 | **Image Hosting** | ImgBB API |
 | **Notifications** | Sonner |
-| **Deployment** | Vercel (frontend), [Add Backend Hosting Platform] (backend), MongoDB Atlas (database) |
+| **Deployment** | Vercel (frontend + backend), MongoDB Atlas (database) |
 
 ### 📦 Key Packages
 

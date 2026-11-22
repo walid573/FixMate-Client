@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { authFetch } from "@/lib/Session/server";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
@@ -15,8 +16,7 @@ export default async function ManageBookingsPage() {
     headers: await headers(),
   });
 
-  // Admin guard (commented out for demo — enable in production)
-  // if (session?.user?.role !== "admin") redirect("/");
+  if (session?.user?.role !== "admin") redirect("/forbidden");
 
   const res = await authFetch(`/admin/bookings`, {
     cache: "no-store",

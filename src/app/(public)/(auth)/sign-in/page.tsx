@@ -135,12 +135,9 @@ export default function LoginPage() {
               >
                 Password
               </Label>
-              <Link
-                href="/forgot-password"
-                className="text-xs font-semibold text-brand-orange-ink hover:underline"
-              >
+              <span className="text-xs font-semibold text-brand-orange-ink">
                 Forgot password?
-              </Link>
+              </span>
             </div>
             <div className="relative">
               <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">

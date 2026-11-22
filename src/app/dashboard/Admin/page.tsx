@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
 import { auth } from "@/lib/auth";
@@ -86,10 +87,9 @@ export default async function AdminPage() {
     headers: await headers(),
   });
 
-  // Simplified auth check for demo/mock purposes.
-  // if (session?.user?.role !== "admin") {
-  //   redirect("/");
-  // }
+  // Defence in depth: the proxy also guards this route, but never rely on a
+  // single layer for admin-only data.
+  if (session?.user?.role !== "admin") redirect("/forbidden");
 
   const [usersRes, servicesRes, bookingsRes, paymentsRes] = await Promise.all([
     authFetch(`/users`, { cache: "no-store" }),

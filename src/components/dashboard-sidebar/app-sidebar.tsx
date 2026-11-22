@@ -165,16 +165,9 @@ const items = menuItemByRole[role];
     <Sidebar>
       {/* Header */}
       <SidebarHeader className="border-b border-sidebar-border px-3 py-3">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              render={<Link href="/" />}
-              className="h-10"
-            >
-              <Logo variant="light" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex h-11 items-center">
+          <Logo variant="light" />
+        </div>
 
         {/* User information */}
         {!isPending && user && (

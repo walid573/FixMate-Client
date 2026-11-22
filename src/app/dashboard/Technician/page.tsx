@@ -1,10 +1,10 @@
 import React from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Search, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { headers } from "next/headers";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -112,12 +112,8 @@ export default async function TechnicianPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader>
           <CardTitle>Booking Requests</CardTitle>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search..." className="w-48 pl-9" />
-          </div>
         </CardHeader>
         <CardContent>
           <OverviewBookings
@@ -140,7 +136,10 @@ export default async function TechnicianPage() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>My Services</CardTitle>
-            <Button size="sm">
+            <Button
+              size="sm"
+              render={<Link href="/dashboard/technician/add-service" />}
+            >
               <Plus />
               Add New Service
             </Button>

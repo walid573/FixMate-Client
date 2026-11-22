@@ -14,9 +14,7 @@ export default async function TransactionsPage() {
   });
 
 
-  if (!session || session.user.role !== "admin") {
-    redirect("/");
-  }
+  if (session?.user?.role !== "admin") redirect("/forbidden");
 
   const res = await authFetch("/admin/payments", {
     cache: "no-store",
