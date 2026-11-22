@@ -1,11 +1,20 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 
 export default function Loading() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-brand-navy">
+        <DashboardBreadcrumb
+          items={[
+            { label: "Admin", href: "/dashboard/admin" },
+            { label: "Services" },
+          ]}
+          badge="Admin"
+        />
+
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-brand-navy">
           Service Approval
         </h1>
         <p className="text-sm text-muted-foreground">

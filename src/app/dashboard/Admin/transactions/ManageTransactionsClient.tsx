@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Search, Lock, Download, ChevronLeft, ChevronRight, CreditCard } from "lucide-react";
+import { useToast } from "@/lib/toast";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,9 +49,18 @@ export default function ManageTransactionsClient({
   const [payments, setPayments] = useState(initialPayments);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const pushToast = useToast();
   useEffect(() => {
     setPayments(initialPayments);
   }, [initialPayments]);
+
+  function handleReceipt(payment: Payment) {
+    if (payment.receiptUrl) {
+      window.open(payment.receiptUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    pushToast("Receipt not available yet.", "info");
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -240,14 +250,19 @@ const summary = useMemo(() => {
                         <BadgePill badge={STATUS_BADGES[p.status] ?? STATUS_BADGES.pending} />
                       </td>
                       <td className="px-6 py-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs"
-                          onClick={() => window.open(p.receiptUrl, "_blank", "noopener,noreferrer")}
-                        >
-                          <Download className="size-3.5" />
-                        </Button>
+                        {p.status === "paid" ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs"
+                            onClick={() => handleReceipt(p)}
+                          >
+                            <Download className="size-3.5" />
+                            Receipt
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </td>
                     </tr>
                   ))

@@ -61,7 +61,7 @@ const menuItemByRole: Record<Role, MenuItem[]> = {
     },
     {
       name: "Profile",
-      url: "/dashboard/customer/profile",
+      url: "/dashboard/profile",
       icon: UserRound,
     },
   ],
@@ -90,7 +90,7 @@ const menuItemByRole: Record<Role, MenuItem[]> = {
     },
     {
       name: "Profile",
-      url: "/dashboard/technician/profile",
+      url: "/dashboard/profile",
       icon: UserRound,
     },
   ],
@@ -124,7 +124,7 @@ const menuItemByRole: Record<Role, MenuItem[]> = {
     },
     {
       name: "Profile",
-      url: "/dashboard/admin/profile",
+      url: "/dashboard/profile",
       icon: UserRound,
     },
   ],

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { authFetch } from "@/lib/Session/server";
+import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 import ManageTransactionsClient from "./ManageTransactionsClient";
 
 
@@ -39,7 +40,15 @@ export default async function TransactionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-brand-navy">
+        <DashboardBreadcrumb
+          items={[
+            { label: "Admin", href: "/dashboard/admin" },
+            { label: "Transactions" },
+          ]}
+          badge="Admin"
+        />
+
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-brand-navy">
           Transactions
         </h1>
 

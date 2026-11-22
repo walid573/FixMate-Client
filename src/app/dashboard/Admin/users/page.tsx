@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { authFetch } from "@/lib/Session/server";
+import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 import ManageUsersClient from "./ManageUsersClient";
 
 // ---------------------------------------------------------------------------
@@ -28,7 +29,15 @@ export default async function ManageUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-brand-navy">
+        <DashboardBreadcrumb
+          items={[
+            { label: "Admin", href: "/dashboard/admin" },
+            { label: "Users" },
+          ]}
+          badge="Admin"
+        />
+
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-brand-navy">
           Manage Users
         </h1>
         <p className="text-sm text-muted-foreground">

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 
 function FieldSkeleton({ height = "h-11" }: { height?: string }) {
   return (
@@ -15,10 +16,13 @@ export default function Loading() {
     <div className="mx-auto max-w-6xl space-y-6 pb-12">
       {/* Breadcrumb + header */}
       <div>
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-4 w-36" />
-          <Skeleton className="h-7 w-20 rounded-full" />
-        </div>
+        <DashboardBreadcrumb
+          items={[
+            { label: "Admin", href: "/dashboard/admin" },
+            { label: "Profile" },
+          ]}
+          badge="Admin"
+        />
 
         <Skeleton className="mt-4 h-8 w-52" />
         <Skeleton className="mt-2 h-4 w-72" />

@@ -142,9 +142,12 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignup = async () => {
+    // Store selected role in cookie before redirecting to Google
+    document.cookie = `signup_role=${role}; path=/; max-age=300`; // 5 minutes
+    
     const data = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/", // will be overridden by middleware after login
+      callbackURL: "/", // Will be redirected to home after Google auth
     });
   };
 

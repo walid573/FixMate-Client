@@ -6,11 +6,14 @@ export default function Loading() {
   return (
     <div className="space-y-6">
       <DashboardBreadcrumb
-        items={[{ label: "Admin" }, { label: "Overview" }]}
+        items={[
+          { label: "Admin", href: "/dashboard/admin" },
+          { label: "Transactions" },
+        ]}
         badge="Admin"
       />
       <h1 className="text-2xl font-bold text-brand-navy">
-        Admin Overview
+        Transactions
       </h1>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

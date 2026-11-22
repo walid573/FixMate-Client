@@ -20,6 +20,8 @@ if (!jwtSecret) {
   throw new Error("JWT_SECRET is not configured");
 }
 
+const mongoClient = new MongoClient(mongoUrl);
+
 export const auth = betterAuth({
   baseURL,
 
@@ -121,7 +123,7 @@ export const auth = betterAuth({
     }),
   ],
 
-  database: mongodbAdapter(new MongoClient(mongoUrl).db("fixmate"), {
-    client: new MongoClient(mongoUrl),
+  database: mongodbAdapter(mongoClient.db("fixmate"), {
+    client: mongoClient,
   }),
 });
