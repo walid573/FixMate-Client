@@ -29,6 +29,7 @@ import { useSessionClient } from "@/lib/Session/client";
 import { addService, type AddServiceData } from "@/lib/api/services";
 import { useToast } from "@/lib/toast";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
+import { SERVICE_CATEGORIES } from "@/constants/categories";
 
 type ServiceMode = "home" | "dropoff";
 
@@ -267,25 +268,14 @@ export default function AddServicePage() {
                                         </SelectTrigger>
 
                                         <SelectContent>
-                                            <SelectItem value="smartphone">
-                                                Smartphone Repair
-                                            </SelectItem>
-
-                                            <SelectItem value="laptop">
-                                                Laptop Servicing
-                                            </SelectItem>
-
-                                            <SelectItem value="ac">
-                                                AC Servicing
-                                            </SelectItem>
-
-                                            <SelectItem value="tv">
-                                                TV Repair
-                                            </SelectItem>
-
-                                            <SelectItem value="appliance">
-                                                Home Appliance
-                                            </SelectItem>
+                                            {SERVICE_CATEGORIES.map((cat) => (
+                                                <SelectItem
+                                                    key={cat.label}
+                                                    value={cat.label}
+                                                >
+                                                    {cat.label}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>

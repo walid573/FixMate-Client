@@ -4,7 +4,10 @@ import { Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SERVICE_CATEGORIES } from "@/constants/categories";
+import {
+  SERVICE_CATEGORIES,
+  canonicalCategory,
+} from "@/constants/categories";
 import { getServiceCategories, getServicesByQuery } from "@/lib/api/services";
 
 interface PageProps {
@@ -27,6 +30,9 @@ export default async function ServicesPage({ searchParams }: PageProps) {
   const sort: Sort = SORTS.includes(resolved.sort as Sort)
     ? (resolved.sort as Sort)
     : "newest";
+  // Canonicalise both the URL value and the API values so the dropdown never
+  // shows aliases like "ac" next to "AC" or "laptop" next to "Laptop & PC".
+  const selectedCategory = canonicalCategory(category);
 
   // Everything below is executed by MongoDB in GET /services. The URL is the
   // single source of truth, so filters survive a reload and a home-page
@@ -34,7 +40,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
   const [services, categoryList] = await Promise.all([
     getServicesByQuery({
       search: search || undefined,
-      category: category !== "all" ? category : undefined,
+      category: selectedCategory,
       mode: mode !== "all" ? mode : undefined,
       sort,
       approvalStatus: "approved",
@@ -46,15 +52,20 @@ export default async function ServicesPage({ searchParams }: PageProps) {
   // Keep the dropdown stable while filters are applied: combine the API list
   // with the known categories and whatever category is currently selected.
   const categories = [
-    ...new Set([
-      ...SERVICE_CATEGORIES.map((c) => c.label),
-      ...categoryList,
-      ...(category !== "all" ? [category] : []),
-    ]),
+    ...new Set(
+      [
+        ...SERVICE_CATEGORIES.map((c) => c.label),
+        ...categoryList.map((c) => canonicalCategory(c) ?? c),
+        ...(selectedCategory ? [selectedCategory] : []),
+      ].filter(Boolean) as string[]
+    ),
   ].sort((a, b) => a.localeCompare(b));
 
   const hasFilters =
-    Boolean(search) || category !== "all" || mode !== "all" || sort !== "newest";
+    Boolean(search) ||
+    Boolean(selectedCategory) ||
+    mode !== "all" ||
+    sort !== "newest";
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -85,7 +96,7 @@ export default async function ServicesPage({ searchParams }: PageProps) {
 
         <select
           name="category"
-          defaultValue={category}
+          defaultValue={selectedCategory ?? "all"}
           className="h-10 rounded-lg border border-input bg-transparent px-3 text-sm text-slate-700 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="all">All categories</option>

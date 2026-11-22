@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { mongoClient } from "@/lib/mongo";
+import { getMongoClient } from "@/lib/mongo";
 import { ObjectId } from "mongodb";
 
 export async function POST(request: NextRequest) {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Reuse the single pooled client — opening a fresh connection on every
     // request quickly exhausts the Atlas connection limit.
-    const users = mongoClient.db("fixmate").collection("users");
+    const users = getMongoClient().db("fixmate").collection("users");
 
     // Better-auth stores user IDs as strings, but MongoDB might use ObjectId
     let userId = session.user.id;

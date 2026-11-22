@@ -778,7 +778,7 @@ The following accounts can be used to evaluate the application.
 | Role | Email | Password |
 |---|---|---|
 | Admin | `admin@tech.com` | `Admin123` |
-| Technician | `technician@tech.com` | `technician123` |
+| Technician | `technician@tech.com` | `Technician123` |
 | Customer | `customer@tech.com` | `Customer123` |
 
 > Ensure these accounts are registered in the production database and assigned the correct application roles before submitting the project.

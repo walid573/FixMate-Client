@@ -28,6 +28,10 @@ import {
 import { useSessionClient } from "@/lib/Session/client";
 import { updateService, type Service } from "@/lib/api/services";
 import { useToast } from "@/lib/toast";
+import {
+  SERVICE_CATEGORIES,
+  canonicalCategory,
+} from "@/constants/categories";
 
 // ---------------------------------------------------------------------------
 // EditServiceForm
@@ -39,13 +43,10 @@ import { useToast } from "@/lib/toast";
 
 type ServiceMode = "home" | "dropoff";
 
-const CATEGORY_OPTIONS = [
-  { value: "smartphone", label: "Smartphone Repair" },
-  { value: "laptop", label: "Laptop Servicing" },
-  { value: "ac", label: "AC Servicing" },
-  { value: "tv", label: "TV Repair" },
-  { value: "appliance", label: "Home Appliance" },
-];
+const CATEGORY_OPTIONS = SERVICE_CATEGORIES.map((c) => ({
+  value: c.label,
+  label: c.label,
+}));
 
 const DURATION_OPTIONS = [
   { value: "30m", label: "30 minutes" },
@@ -68,7 +69,9 @@ export default function EditServiceForm({
   const pushToast = useToast();
 
   const [title, setTitle] = useState(service.title ?? "");
-  const [category, setCategory] = useState(service.category ?? "");
+  const [category, setCategory] = useState(
+    canonicalCategory(service.category) ?? ""
+  );
   const [description, setDescription] = useState(service.description ?? "");
   const [price, setPrice] = useState(String(service.basePrice ?? ""));
   const [serviceArea, setServiceArea] = useState(service.serviceArea ?? "");
