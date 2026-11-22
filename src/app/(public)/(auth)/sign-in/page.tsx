@@ -44,9 +44,8 @@ export default function LoginPage() {
       `Welcome back${resData?.user?.name ? `, ${resData.user.name}` : ""}!`,
       "success"
     );
-    // Redirect to role-based dashboard
-    const role = resData?.user?.role || "customer";
-    const dashboardPath = `/dashboard/${role}`;
+    
+    const dashboardPath = `/`;
     router.push(dashboardPath);
     router.refresh();
   };
@@ -54,7 +53,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/", // will be overridden by middleware after login
+      callbackURL: "/",
     });
   };
 
@@ -209,7 +208,7 @@ export default function LoginPage() {
         <p className="mt-6 text-center text-sm text-slate-500">
           New to FixMate?{" "}
           <Link
-            href="/register"
+            href="/sign-up"
             className="font-semibold text-brand-orange-ink hover:underline"
           >
             Register

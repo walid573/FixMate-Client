@@ -1,29 +1,5 @@
 'use server'
-
-
-// ---------------------------------------------------------------------------
-// Bookings API client.
-//
-// POSTs a repair request to http://localhost:8000/bookings.
-//
-// The payload shape below is intentionally FLAT — it mirrors exactly what
-// the server-side route in FixMate-server/index.js expects:
-//   - serviceId, serviceTitle, serviceImage, category, basePrice
-//   - technicianName, technicianEmail
-//   - customerName, customerEmail, customerPhone, address, preferredDate,
-//     problemDescription
-//
-// The server enforces:
-//   - required fields + problemDescription >= 20 chars
-//   - preferredDate must be today or a future date
-//   - service must exist
-//   - no duplicate active booking (status requested/accepted/in-progress)
-//     for the same serviceId + customerEmail -> 409 "Active booking already exists."
-//
-// NOTE: the backend route does exist now; if you change the server payload,
-// update this interface too.
-// ---------------------------------------------------------------------------
-
+import { revalidatePath } from "next/cache";
 import { authFetch } from "../Session/server";
 
 
@@ -63,12 +39,6 @@ export interface CreateBookingResponse {
   booking?: Booking;
 }
 
-// ---------------------------------------------------------------------------
-// Fetch bookings for a customer (server-side) OR a technician.
-// GET /bookings is protected: the server resolves the caller from the JWT and
-// returns only their own rows, so the token must be attached here. The email
-// args are kept for call-site compatibility.
-// ---------------------------------------------------------------------------
 
 export const getBookings = async (
   email?: string,
@@ -84,7 +54,7 @@ export const getBookings = async (
     const res = await authFetch(`/bookings${query}`);
 
     if (!res.ok) {
-      throw new Error("Failed to fetch bookings");
+      throw new Error(`Failed to fetch bookings (HTTP ${res.status} from ${res.url})`);
     }
 
     const bookings: Booking[] = await res.json();
@@ -98,7 +68,7 @@ export const getBookings = async (
 export const createBooking = async (
   payload: CreateBookingPayload
 ): Promise<CreateBookingResponse> => {
-  const res = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
+  const res = await authFetch(`/bookings`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -109,37 +79,24 @@ export const createBooking = async (
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    // Server-side duplicate-prevention failures come back here.
     throw new Error(
       (data as { message?: string }).message ||
         "Failed to submit your repair request. Please try again."
     );
   }
 
+  // Drop cached dashboard pages so the new booking shows up immediately.
+  revalidatePath("/dashboard", "layout");
+
   return data as CreateBookingResponse;
 };
 
-// ---------------------------------------------------------------------------
-// Cancel a booking.
-//
-// PATCH /bookings/:id/status with { status, customerEmail } — a STATUS CHANGE,
-// not a delete, so the record survives and still shows on My Bookings with a
-// "Cancelled" badge.
-//
-// The server enforces:
-//   - valid ObjectId + status from an allow-list + customerEmail required
-//   - the booking must belong to that customerEmail (404 otherwise)
-//   - only requested / accepted / in-progress bookings can be cancelled (409)
-//
-// Runs in the BROWSER, so it must use NEXT_PUBLIC_API_URL (BASE_URL is
-// server-only and would be undefined here).
-// ---------------------------------------------------------------------------
 export const cancelBooking = async (
   bookingId: string,
   customerEmail: string
 ): Promise<void> => {
   const res = await authFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/status`,
+    `/bookings/${bookingId}/status`,
     {
       method: "PATCH",
       headers: {
@@ -156,34 +113,20 @@ export const cancelBooking = async (
       (data as { message?: string }).message || "Failed to cancel the booking."
     );
   }
+
+  revalidatePath("/dashboard", "layout");
 };
 
 
 export const deleteBookings = async()=>{
-const res = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
+const res = await authFetch(`/bookings`, {
     method: "DELETE",
     
   }); 
 }
 
-// ---------------------------------------------------------------------------
-// Technician booking actions.
-//
-// PATCH /bookings/:id/status with { status, technicianEmail, finalAmount? }
-// — the SAME route the customer cancel flow uses, but ownership is checked
-// against technicianEmail and the new status walks the transition ladder:
-//   requested  -> accepted / rejected
-//   accepted   -> in-progress / rejected
-//   in-progress-> completed / rejected
-//
-// `finalAmount` is OPTIONAL — it is only meaningful when marking a job
-// "completed" (the technician sets the final price). The server ignores it
-// for every other transition.
-//
-// Terminal states (completed / cancelled / rejected) can never be changed.
-//
-// Runs in the BROWSER, so it must use NEXT_PUBLIC_API_URL.
-// ---------------------------------------------------------------------------
+
+
 export const updateBookingStatus = async (
   bookingId: string,
   technicianEmail: string,
@@ -196,7 +139,7 @@ export const updateBookingStatus = async (
   }
 
   const res = await authFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/status`,
+    `/bookings/${bookingId}/status`,
     {
       method: "PATCH",
       headers: {
@@ -213,25 +156,18 @@ export const updateBookingStatus = async (
       (data as { message?: string }).message || "Failed to update the booking."
     );
   }
+
+  revalidatePath("/dashboard", "layout");
 };
 
-// ---------------------------------------------------------------------------
-// Edit the final amount of a completed, not-yet-paid booking.
-//
-// PATCH /bookings/:id/final-amount with { technicianEmail, finalAmount }
-// The server rejects $0 / non-numeric amounts, calls from anyone but the
-// booking's technician, jobs that aren't completed, and jobs that are
-// already paid (the price is locked once the customer settles).
-//
-// Runs in the BROWSER, so it must use NEXT_PUBLIC_API_URL.
-// ---------------------------------------------------------------------------
+
 export const updateFinalAmount = async (
   bookingId: string,
   technicianEmail: string,
   finalAmount: number
 ): Promise<void> => {
   const res = await authFetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/final-amount`,
+    `/bookings/${bookingId}/final-amount`,
     {
       method: "PATCH",
       headers: {
@@ -248,5 +184,7 @@ export const updateFinalAmount = async (
       (data as { message?: string }).message || "Failed to update the amount."
     );
   }
+
+  revalidatePath("/dashboard", "layout");
 };
 

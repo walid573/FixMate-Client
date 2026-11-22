@@ -17,9 +17,12 @@ export default async function ManageBookingsPage() {
   // Admin guard (commented out for demo — enable in production)
   // if (session?.user?.role !== "admin") redirect("/");
 
-  const res = await authFetch(`/bookings/all`, {
+  const res = await authFetch(`/admin/bookings`, {
     cache: "no-store",
   });
+  if (!res.ok) {
+    console.error("Admin bookings fetch failed:", res.status, await res.text());
+  }
   const bookings = res.ok ? await res.json() : [];
 
   return (

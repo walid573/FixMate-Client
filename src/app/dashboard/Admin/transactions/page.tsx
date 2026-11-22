@@ -1,26 +1,40 @@
+
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
 import { auth } from "@/lib/auth";
 import { authFetch } from "@/lib/Session/server";
 import ManageTransactionsClient from "./ManageTransactionsClient";
 
-// ---------------------------------------------------------------------------
-// Transactions (Admin) — SERVER COMPONENT
-//
-// Fetches every payment on the platform and passes the list to the client
-// for filtering, searching, and pagination. Admins are read-only here.
-// ---------------------------------------------------------------------------
+
 export default async function TransactionsPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
-  // Admin guard (commented out for demo — enable in production)
-  // if (session?.user?.role !== "admin") redirect("/");
 
-  const res = await authFetch(`/payments/all`, {
+  if (!session || session.user.role !== "admin") {
+    redirect("/");
+  }
+
+  const res = await authFetch("/admin/payments", {
     cache: "no-store",
   });
-  const payments = res.ok ? await res.json() : [];
+
+  let payments = [];
+
+  if (res.ok) {
+    const result = await res.json();
+    payments = Array.isArray(result.data)
+      ? result.data
+      : {};
+  } else {
+    console.error(
+      "Failed to fetch admin payments:",
+      res.status,
+      await res.text()
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -28,12 +42,15 @@ export default async function TransactionsPage() {
         <h1 className="text-2xl font-bold tracking-tight text-brand-navy">
           Transactions
         </h1>
+
         <p className="text-sm text-muted-foreground">
           Every payment received through Stripe.
         </p>
       </div>
 
-      <ManageTransactionsClient initialPayments={payments} />
+      <ManageTransactionsClient
+        initialPayments={payments}
+      />
     </div>
   );
 }

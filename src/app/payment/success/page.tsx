@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PaymentSuccessVerifier from "./PaymentSuccessVerifier";
 
+// This page reads the session (headers) and the Stripe session_id at request
+// time, so it must not be prerendered into a static shell.
+export const instant = false;
+
 
 const backToBookings = (
   <Button

@@ -90,17 +90,24 @@ export default async function AdminPage() {
   const [usersRes, servicesRes, bookingsRes, paymentsRes] = await Promise.all([
     authFetch(`/users`, { cache: "no-store" }),
     authFetch(`/services`, { cache: "no-store" }),
-    authFetch(`/bookings/all`, { cache: "no-store" }),
-    authFetch(`/payments/all`, { cache: "no-store" }),
+    authFetch(`/admin/bookings`, { cache: "no-store" }),
+    authFetch(`/admin/payments`, { cache: "no-store" }),
   ]);
+
+  // Surface failures in the server terminal instead of silently showing zeros.
+  [usersRes, servicesRes, bookingsRes, paymentsRes].forEach((r) => {
+    if (!r.ok) console.error("Admin overview fetch failed:", r.url, r.status);
+  });
 
   const users: UserRow[] = usersRes.ok ? await usersRes.json() : [];
   const services: Service[] = servicesRes.ok ? await servicesRes.json() : [];
   const bookings: BookingRow[] = bookingsRes.ok
     ? await bookingsRes.json()
     : [];
-  const payments: PaymentRow[] = paymentsRes.ok
-    ? await paymentsRes.json()
+  // /admin/payments responds with { success, total, data }
+  const paymentsBody = paymentsRes.ok ? await paymentsRes.json() : null;
+  const payments: PaymentRow[] = Array.isArray(paymentsBody?.data)
+    ? paymentsBody.data
     : [];
 
   // ---- Derived stats -------------------------------------------------------

@@ -1,4 +1,5 @@
-'use server'
+'use server';
+
 import { authFetch } from "../Session/server";
 
 

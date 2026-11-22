@@ -1,125 +1,395 @@
+
 "use client";
 
 import Link from "next/link";
-import { Wrench, Shield, Clock, Star, Users, Heart, ArrowRight, Check, Monitor } from "lucide-react";
+import {
+  Wrench,
+  ShieldCheck,
+  Clock,
+  Star,
+  Users,
+  Heart,
+  ArrowRight,
+  Check,
+  CircleDollarSign,
+  MapPin,
+  ClipboardCheck,
+  Smartphone,
+  UserCheck,
+  CreditCard,
+} from "lucide-react";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const exploreClass = cn(
   buttonVariants({ size: "lg" }),
-  "h-14 gap-3 rounded-full bg-brand-orange pl-6 pr-2 text-base font-semibold text-brand-navy shadow-lg shadow-brand-orange/25 hover:bg-brand-orange/90",
+  "h-12 gap-3 rounded-full bg-brand-orange px-5 text-sm font-semibold text-brand-navy shadow-lg shadow-brand-orange/25 hover:bg-brand-orange/90"
 );
 
 const becomeClass = cn(
   buttonVariants({ variant: "outline", size: "lg" }),
-  "h-14 rounded-full border-slate-300 bg-white px-6 font-semibold text-brand-navy hover:bg-white hover:text-brand-navy",
+  "h-12 rounded-full border-brand-navy/50 bg-white px-5 text-sm font-semibold text-brand-navy hover:bg-slate-50 hover:text-brand-navy"
 );
+
+const stats = [
+  { value: "2,000+", label: "Repairs completed" },
+  { value: "96", label: "Verified technicians" },
+  { value: "4.9 ★", label: "Average rating" },
+  { value: "30 min", label: "Typical response" },
+];
+
+const values = [
+  {
+    icon: ShieldCheck,
+    title: "Trust first",
+    description:
+      "Every technician is reviewed, and every service is approved before it goes live.",
+  },
+  {
+    icon: CircleDollarSign,
+    title: "Honest pricing",
+    description:
+      "You see the starting price up front, and the final amount before you pay.",
+  },
+  {
+    icon: Users,
+    title: "Fair to technicians",
+    description:
+      "Skilled people get steady work, clear requests and a simple way to run their jobs.",
+  },
+  {
+    icon: MapPin,
+    title: "Close to you",
+    description:
+      "Local technicians, with home visit or shop drop-off, wherever it suits you.",
+  },
+];
+
+const steps = [
+  {
+    number: "1",
+    title: "Technicians apply",
+    description:
+      "They create an account and list the repair services they offer.",
+  },
+  {
+    number: "2",
+    title: "We review each listing",
+    description:
+      "An admin checks every service. Only approved ones appear on FixMate.",
+  },
+  {
+    number: "3",
+    title: "Customers book with confidence",
+    description:
+      "Every job is tracked, and payment happens after the work is done.",
+  },
+];
+
+const team = [
+  { role: "Founder", color: "bg-orange-200" },
+  { role: "Operations", color: "bg-slate-200" },
+  { role: "Technician relations", color: "bg-orange-100" },
+  { role: "Support", color: "bg-blue-100" },
+];
+
+const storyFeatures = [
+  {
+    old: "No updates after you hand over a device",
+    title: "Step-by-step tracking",
+    description:
+      "Every job moves from Requested to Completed, and you see each step.",
+  },
+  {
+    old: "Paying before any work is done",
+    title: "Pay after the work",
+    description:
+      "The Pay Now button appears only once your job is completed.",
+  },
+  {
+    old: "Skilled technicians with nowhere to show their work",
+    title: "A home for their services",
+    description:
+      "Technicians list services, receive requests and manage every job.",
+  },
+];
 
 export default function About() {
   return (
-    <section className="bg-brand-cream">
-      <div className="mx-auto w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:px-8 lg:py-20">
-        <div>
-          <p className="inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-white px-4 py-1.5 text-xs font-medium text-brand-orange-ink shadow-sm">
-            <span className="size-1.5 rounded-full bg-brand-orange" aria-hidden="true" />
-            Reliable Repair Services, Made Simple
-          </p>
+    <main className="overflow-hidden bg-[#f4f7fb] text-brand-navy">
 
-          <h1 className="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-brand-navy sm:text-5xl lg:text-[3.4rem]">
-            Broken Device?
-            <span className="block text-brand-orange-vivid">
-              Get It Fixed by Verified Technicians
-            </span>
-          </h1>
+      {/* HERO SECTION */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
 
-          <p className="mt-6 max-w-md text-base leading-relaxed text-slate-600">
-            Tell us what is broken, compare trusted local technicians and book a repair in minutes. Track every step and pay only when the job is done.
-          </p>
+          <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-16">
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/" className={exploreClass}>
-              Explore Services
-              <span className="flex size-10 items-center justify-center rounded-full bg-brand-navy text-white">
-                <ArrowRight className="size-4" aria-hidden="true" />
+            {/* Hero content */}
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
+                <span className="size-2 rounded-full bg-brand-orange" />
+                About FixMate
               </span>
-            </Link>
-            <Link href="/register" className={becomeClass}>
-              Become a Technician
-            </Link>
-          </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-6 border-t border-slate-200 pt-6">
-            <div className="flex -space-x-2" aria-hidden="true">
-              <span className="flex size-8 items-center justify-center rounded-full border-2 border-brand-cream bg-brand-peach text-[10px] font-semibold text-brand-navy">
-                FixMate
-              </span>
-            </div>
+              <h1 className="mt-5 max-w-xl text-4xl font-extrabold leading-[1.08] tracking-tight text-brand-navy sm:text-5xl lg:text-[3.2rem]">
+                Repairs you can trust,
+                <span className="block text-brand-orange-vivid">
+                  from people who care.
+                </span>
+              </h1>
 
-            <div className="absolute right-[11%] top-[26%] hidden w-44 items-center gap-2.5 rounded-xl bg-white p-3 shadow-lg shadow-brand-navy/20 sm:flex">
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
-                <Check className="size-3.5" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-xs font-semibold text-brand-navy">Booking confirmed</p>
-                <p className="truncate text-[10px] text-slate-500">Tomorrow · 10:00 AM</p>
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">
+                FixMate connects people with verified local technicians,
+                so every repair is clear, trackable and fairly priced.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/" className={exploreClass}>
+                  Explore Services
+                  <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy text-white">
+                    <ArrowRight className="size-4" />
+                  </span>
+                </Link>
+
+                <Link href="/register" className={becomeClass}>
+                  Become a Technician
+                </Link>
               </div>
             </div>
 
-            <div className="absolute -left-3 top-[46%] flex items-center gap-2.5 rounded-xl bg-white p-3 shadow-lg shadow-brand-navy/20">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-peach text-[10px] font-semibold text-brand-navy">
-                RH
-              </span>
-              <div>
-                <p className="text-xs font-semibold text-brand-navy">Rafiq Hasan</p>
-                <p className="flex items-center gap-1 text-[10px] text-slate-500">
-                  <Star className="size-2.5 fill-brand-orange text-brand-orange" aria-hidden="true" />
-                  4.9 · Verified technician
+            {/* Hero illustration */}
+            <div className="relative mx-auto w-full max-w-md px-3 py-5">
+              <div className="relative flex aspect-[1.2/1] items-center justify-center overflow-hidden rounded-[2.5rem] bg-[#ffead6]">
+
+                <span className="absolute right-[10%] top-[10%] size-3 rounded-full bg-brand-orange" />
+
+                {/* Decorative circles */}
+                <div className="absolute -right-16 -top-16 size-64 rounded-full bg-orange-100/70" />
+
+                {/* Smartphone */}
+                <div className="relative z-10 flex h-[76%] w-[34%] flex-col items-center justify-center gap-3 rounded-[1.5rem] border-[5px] border-[#17345c] bg-[#112b4e] shadow-xl">
+
+                  <div className="absolute top-2 h-1 w-12 rounded-full bg-slate-500/50" />
+
+                  <span className="flex size-14 items-center justify-center rounded-full bg-brand-orange text-brand-navy">
+                    <Wrench className="size-7 -rotate-12" />
+                  </span>
+
+                  <span className="h-1.5 w-14 rounded-full bg-slate-400/30" />
+                  <span className="h-1.5 w-10 rounded-full bg-slate-400/20" />
+
+                  <span className="mt-1 h-3 w-14 rounded-full bg-brand-orange" />
+                </div>
+
+                {/* Floating completed card */}
+                <div className="absolute bottom-[12%] left-[-1%] z-20 flex items-center gap-2 rounded-xl bg-white p-3 shadow-lg shadow-slate-900/10 sm:left-[-2%]">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                    <Check className="size-4" />
+                  </span>
+
+                  <div>
+                    <p className="text-[10px] font-bold text-brand-navy sm:text-xs">
+                      Repair completed
+                    </p>
+                    <p className="text-[9px] text-slate-500 sm:text-[10px]">
+                      Paid securely online
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* Statistics */}
+          <div className="mt-14 grid grid-cols-2 gap-6 rounded-2xl border border-slate-200 bg-white px-5 py-7 shadow-sm sm:grid-cols-4 sm:gap-4">
+
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <h3 className="text-2xl font-extrabold tracking-tight text-brand-navy sm:text-3xl">
+                  {stat.value}
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
+                  {stat.label}
                 </p>
               </div>
+            ))}
+
+          </div>
+
+          {/* OUR STORY */}
+          <div className="mt-16 grid gap-10 lg:grid-cols-2 lg:gap-16">
+
+            <div>
+              <span className="rounded-full bg-slate-200 px-3 py-1 text-[10px] font-bold text-brand-navy">
+                Our story
+              </span>
+
+              <h2 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                Why we built FixMate
+              </h2>
+
+              <p className="mt-4 text-sm leading-relaxed text-slate-500">
+                Finding a trustworthy repair technician is hard. People
+                hand over a device, hear nothing back and often pay before
+                any work is done. Skilled technicians, meanwhile, have no
+                simple place to show their services and manage incoming jobs.
+              </p>
+
+              <p className="mt-3 text-sm leading-relaxed text-slate-500">
+                FixMate fixes both sides. Every job has a clear, trackable
+                status, and payment happens only after the work is delivered.
+              </p>
             </div>
 
-            <div className="absolute -left-3 bottom-[10%] hidden w-48 rounded-xl bg-white p-3 shadow-lg shadow-brand-navy/20 sm:block">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold text-brand-navy">AC Servicing</p>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
-                  In Progress
+            <div className="space-y-3">
+              {storyFeatures.map((feature) => (
+                <div
+                  key={feature.title}
+                  className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                >
+                  <p className="text-[10px] text-slate-400 line-through">
+                    {feature.old}
+                  </p>
+
+                  <div className="mt-2 flex gap-3">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                      <Check className="size-4" />
+                    </span>
+
+                    <div>
+                      <h3 className="text-xs font-bold text-brand-navy">
+                        {feature.title}
+                      </h3>
+                      <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* OUR VALUES */}
+      <section className="border-y border-slate-200 bg-white py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          <div className="text-center">
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              What we stand for
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Four ideas guide every decision we make.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            {values.map((value) => {
+              const Icon = value.icon;
+
+              return (
+                <div
+                  key={value.title}
+                  className="rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-orange/40 hover:shadow-lg"
+                >
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+                    <Icon className="size-5" />
+                  </span>
+
+                  <h3 className="mt-4 text-sm font-bold text-brand-navy">
+                    {value.title}
+                  </h3>
+
+                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                    {value.description}
+                  </p>
+                </div>
+              );
+            })}
+
+          </div>
+        </div>
+      </section>
+
+      {/* HOW WE WORK + TEAM */}
+      <section className="bg-[#f4f7fb] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          {/* Reliability */}
+          <div>
+            <div className="text-center">
+              <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+                How we keep repairs reliable
+              </h2>
+            </div>
+
+            <div className="mt-9 grid gap-4 md:grid-cols-3">
+
+              {steps.map((step) => (
+                <div
+                  key={step.number}
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy text-xs font-bold text-white">
+                    {step.number}
+                  </span>
+
+                  <h3 className="mt-3 text-sm font-bold">
+                    {step.title}
+                  </h3>
+
+                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+
+            </div>
+          </div>
+
+    
+          {/* CTA */}
+          <div className="mt-14 flex flex-col justify-between gap-7 rounded-2xl bg-[#112b4e] px-7 py-10 text-white sm:px-10 lg:flex-row lg:items-center">
+
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+                Ready to get it fixed?
+              </h2>
+
+              <p className="mt-2 text-sm text-slate-300">
+                Find a verified technician, or start offering your own services.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link href="/" className={exploreClass}>
+                Explore Services
+                <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy text-white">
+                  <ArrowRight className="size-4" />
                 </span>
-              </div>
-              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                <span className="block h-full w-2/3 rounded-full bg-brand-orange" />
-              </div>
+              </Link>
+
+              <Link
+                href="/register"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-white/60 px-5 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-brand-navy"
+              >
+                Become a Technician
+              </Link>
             </div>
+
           </div>
+
         </div>
+      </section>
 
-        <div className="relative w-full px-3">
-          <div className="relative aspect-[6/5] rounded-[2rem] bg-brand-navy">
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(255,150,61,0.35),transparent_55%)]" />
-              <div className="absolute inset-0 opacity-70 [background-image:linear-gradient(to_right,rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:32px_32px]" />
-            </div>
-            <div className="absolute -right-20 top-1/2 size-[380px] -translate-y-1/2 rounded-full border border-white/10" />
-            <div className="absolute -right-2 top-1/2 size-[240px] -translate-y-1/2 rounded-full border border-white/10" />
-          </div>
-
-          <span className="absolute right-[11%] top-[26%] rounded-xl bg-white/10 p-2.5 text-white/70">
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </span>
-
-          <span className="absolute bottom-[16%] left-[14%] rounded-xl bg-white/10 p-2.5 text-white/70">
-            <Monitor className="size-4" aria-hidden="true" />
-          </span>
-
-          <div className="absolute left-1/2 top-1/2 flex h-[78%] w-[38%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-[2rem] border border-white/15 bg-[#0b1420] shadow-2xl shadow-black/40">
-            <span className="flex size-16 items-center justify-center rounded-full bg-brand-orange text-white">
-              <Wrench className="size-7 -rotate-12" aria-hidden="true" />
-            </span>
-            <span className="h-2 w-20 rounded-full bg-white/25" aria-hidden="true" />
-            <span className="h-2 w-14 rounded-full bg-white/15" aria-hidden="true" />
-            <span className="h-10 w-full rounded-xl bg-brand-orange" aria-hidden="true" />
-          </div>
-        </div>
-      </div>
-    </section>
+    </main>
   );
 }

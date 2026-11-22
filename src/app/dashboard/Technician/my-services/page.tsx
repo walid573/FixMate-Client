@@ -27,12 +27,16 @@ export default async function MyServicesPage() {
     redirect("/login");
   }
 
-  const allServices = await getServices();
+  const allServices = await getServices(session.user.email, session.user.id);
 
-  // Only services this technician actually owns — strict id match so every
-  // row shown can also be edited / toggled / deleted.
+  // Server-side filtering already returns only this technician's services,
+  // but keep a safety fallback in case the backend returns extra data.
   const myServices = allServices.filter(
-    (service) => service.technicianId === session.user.id
+    (service) =>
+      service.technicianId === session.user.id ||
+      (service.technicianEmail &&
+        String(service.technicianEmail).toLowerCase() ===
+          String(session.user.email).toLowerCase())
   );
 
   return (

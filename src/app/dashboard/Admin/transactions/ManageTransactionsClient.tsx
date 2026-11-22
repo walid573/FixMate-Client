@@ -48,8 +48,6 @@ export default function ManageTransactionsClient({
   const [payments, setPayments] = useState(initialPayments);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-
-  // Sync state when server data updates
   useEffect(() => {
     setPayments(initialPayments);
   }, [initialPayments]);
@@ -100,15 +98,44 @@ export default function ManageTransactionsClient({
     return `${method.brand.toUpperCase()} •••• ${method.last4}`;
   }
 
-  const summary = useMemo(() => {
-    const paid = payments.filter((p) => p.status === "paid");
-    const totalSpent = paid.reduce((sum, p) => sum + (p.amount || 0), 0);
-    return {
-      totalSpent,
-      paidJobs: paid.length,
-      averagePayment: paid.length > 0 ? Math.round(totalSpent / paid.length) : 0,
-    };
-  }, [payments]);
+  
+const summary = useMemo(() => {
+  const paid = payments.filter(
+    (p) => p.status === "paid"
+  );
+
+  const totalRevenue = paid.reduce(
+    (sum, p) => sum + Number(p.amount || 0),
+    0
+  );
+
+  const now = new Date();
+
+  const monthlyRevenue = paid
+    .filter((p) => {
+      const date = new Date(p.paidAt || p.createdAt);
+
+      return (
+        !isNaN(date.getTime()) &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear()
+      );
+    })
+    .reduce(
+      (sum, p) => sum + Number(p.amount || 0),
+      0
+    );
+
+  return {
+    totalRevenue,
+    monthlyRevenue,
+    paidJobs: paid.length,
+    averagePayment:
+      paid.length > 0
+        ? totalRevenue / paid.length
+        : 0,
+  };
+}, [payments]);
 
   return (
     <div className="space-y-6">
@@ -117,7 +144,7 @@ export default function ManageTransactionsClient({
         <Card className="rounded-xl p-5">
           <p className="text-sm text-muted-foreground">Total revenue</p>
           <p className="mt-2 text-3xl font-bold text-brand-navy">
-            {formatMoney(summary.totalSpent)}
+            {formatMoney(summary.totalRevenue)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             From {summary.paidJobs} successful payments
@@ -127,14 +154,15 @@ export default function ManageTransactionsClient({
         <Card className="rounded-xl p-5">
           <p className="text-sm text-muted-foreground">This month</p>
           <p className="mt-2 text-3xl font-bold text-brand-navy">
-            ${summary.totalSpent.toLocaleString()}
+                        {formatMoney(summary.monthlyRevenue)}
+
           </p>
         </Card>
 
         <Card className="rounded-xl p-5">
           <p className="text-sm text-muted-foreground">Average payment</p>
           <p className="mt-2 text-3xl font-bold text-brand-navy">
-            ${summary.averagePayment.toLocaleString()}
+            {formatMoney(summary.averagePayment)}
           </p>
         </Card>
       </div>

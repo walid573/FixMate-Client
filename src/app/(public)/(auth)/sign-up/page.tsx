@@ -92,8 +92,7 @@ export default function RegisterPage() {
   const showError = (field: keyof typeof errors) =>
     submitAttempted || touched[field] ? errors[field] : undefined;
 
-  // Confirm password only matters for the password field itself; it is not
-  // part of the core validate() so it can stay role-agnostic.
+  
   const confirmMatches =
     !confirmPassword || confirmPassword === password;
   const passwordValid =
@@ -135,11 +134,8 @@ export default function RegisterPage() {
       return;
     }
 
-    pushToast("Account created successfully!", "success");
-
-    // Redirect to role-based dashboard
-    const userRole = resData?.user?.role || role || "customer";
-    const dashboardPath = `/dashboard/${userRole}`;
+    pushToast("Account created successfully!", "success");   
+    const dashboardPath = `/`;
     router.push(dashboardPath);
     router.refresh();
     console.log(resData);

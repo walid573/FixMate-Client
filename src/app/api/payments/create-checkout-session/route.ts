@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   const { token } = await auth.api.getToken({ headers: requestHeaders });
 
-  const res = await fetch(`${process.env.BASE_URL}/payments/checkout-session`, {
+  const res = await fetch(`${process.env.BASE_URL}/payments/create-checkout-session`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

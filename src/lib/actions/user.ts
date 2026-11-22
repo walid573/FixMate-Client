@@ -3,6 +3,7 @@
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export type UserRole = "customer" | "technician" | "admin";
 
@@ -55,14 +56,28 @@ export async function updateUserRole(
       }
     );
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      console.error("Update user role failed:", response.status, data);
+
+      // Say WHY it failed - these three cover almost every case.
+      const hint =
+        response.status === 401
+          ? " (the server rejected your login token - check AUTH_URL / JWT_SECRET on the server)"
+          : response.status === 403
+          ? " (your account does not have the admin role in the database)"
+          : response.status === 404
+          ? " (route not found - is the server deployed with the latest code?)"
+          : "";
+
       return {
         ok: false,
-        message: data.message || "Failed to update user role.",
+        message: (data.message || "Failed to update user role.") + hint,
       };
     }
+
+    revalidatePath("/dashboard", "layout");
 
     return {
       ok: true,

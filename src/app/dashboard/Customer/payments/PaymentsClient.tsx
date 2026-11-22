@@ -205,8 +205,8 @@ export default function PaymentsClient({ payments }: { payments: Payment[] }) {
                   Payment due · {duePayment.serviceTitle}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {duePayment.completedAt
-                    ? `Completed ${formatDate(duePayment.completedAt)}`
+                  {duePayment.paidAt
+                    ? `Completed ${formatDate(duePayment.paidAt)}`
                     : "Job completed"}{" "}
                   by {duePayment.technicianName}. Pay securely with Stripe.
                 </p>

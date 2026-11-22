@@ -31,8 +31,8 @@ export default async function TechnicianPage() {
   const technicianEmail = session.user.email;
   // Fetch real data from the backend.
   const [bookings, services] = await Promise.all([
-    getBookings(undefined, technicianEmail),
-    getServices(technicianEmail),
+    getBookings(undefined, technicianEmail).catch(() => []),
+    getServices(technicianEmail, session.user.id).catch(() => []),
   ]);
 
   // ---- Stats computed from real bookings ----
