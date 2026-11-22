@@ -22,6 +22,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
+  image?: string | null;
   role: "customer" | "technician" | "admin";
   createdAt: string;
 }
@@ -159,9 +160,20 @@ export default function ManageUsersClient({initialUsers,currentUserEmail,}: {ini
                     <tr key={user._id} className="hover:bg-slate-50/30">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-peach font-bold text-brand-navy">
-                            {user.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-                          </span>
+                          {user.image ? (
+                            // User photos come from external hosts (ImgBB), so
+                            // a plain <img> matches the rest of the app.
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={user.image}
+                              alt={user.name}
+                              className="size-9 shrink-0 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-peach font-bold text-brand-navy">
+                              {user.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+                            </span>
+                          )}
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-brand-navy">{user.name}</span>
                             {isSelf && (

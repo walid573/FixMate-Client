@@ -410,9 +410,20 @@ export default function MyServicesClient({
               </Button>
             </div>
           ) : filtered.length === 0 ? (
-            <p className="px-6 py-14 text-center text-sm text-muted-foreground">
-              No services match your search.
-            </p>
+            <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+              <Search className="size-7 text-muted-foreground" />
+              <div>
+                <p className="font-semibold text-brand-navy">
+                  No services match your search
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Try a different title, category, or technician name.
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => setQuery("")}>
+                Clear search
+              </Button>
+            </div>
           ) : (
             <>
               {/* Desktop: table */}

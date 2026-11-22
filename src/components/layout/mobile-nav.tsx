@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowRight,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  UserRound,
+} from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -14,6 +21,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { NAV_ITEMS } from "@/constants/nav";
+import { authClient, useSession } from "@/lib/auth-client";
+import { useToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 const menuLinkClass =
@@ -30,6 +39,26 @@ const getStartedClass = cn(
 );
 
 export function MobileNav() {
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+  const pushToast = useToast();
+
+  const user = session?.user;
+  const role = user?.role ?? "customer";
+  const roleLabel =
+    role === "technician"
+      ? "Technician"
+      : role === "admin"
+        ? "Admin"
+        : "Customer";
+
+  async function handleSignOut() {
+    await authClient.signOut();
+    pushToast("You have been signed out.", "success");
+    router.push("/sign-in");
+    router.refresh();
+  }
+
   return (
     <Sheet>
       <SheetTrigger
@@ -64,19 +93,74 @@ export function MobileNav() {
           </ul>
         </nav>
 
-        <SheetFooter>
-          <SheetClose
-            render={<Link href="/sign-in" className={signInClass} />}
-          >
-            Sign In
-          </SheetClose>
-          <SheetClose
-            render={<Link href="/sign-up" className={getStartedClass} />}
-          >
-            Get Started
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </SheetClose>
-        </SheetFooter>
+        {/* Footer reflects the session, just like the desktop navbar. */}
+        {!isPending && (
+          <SheetFooter className="flex-col items-stretch gap-2">
+            {user ? (
+              <>
+                <div className="mb-1 px-1">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {user.name}
+                  </p>
+                  <p className="truncate text-xs text-white/60">{user.email}</p>
+                  <p className="mt-1 text-[10px] font-semibold tracking-wide text-brand-orange">
+                    {roleLabel}
+                  </p>
+                </div>
+
+                <SheetClose
+                  render={
+                    <Link
+                      href={`/dashboard/${role}`}
+                      className={cn(signInClass, "inline-flex items-center justify-center gap-2")}
+                    />
+                  }
+                >
+                  <LayoutDashboard className="size-4" aria-hidden="true" />
+                  Dashboard
+                </SheetClose>
+
+                <SheetClose
+                  render={
+                    <Link
+                      href="/dashboard/profile"
+                      className={cn(signInClass, "inline-flex items-center justify-center gap-2")}
+                    />
+                  }
+                >
+                  <UserRound className="size-4" aria-hidden="true" />
+                  Update Profile
+                </SheetClose>
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className={cn(
+                    getStartedClass,
+                    "inline-flex items-center justify-center gap-2 bg-white/10 text-red-300 hover:bg-white/15 hover:text-red-200",
+                  )}
+                >
+                  <LogOut className="size-4" aria-hidden="true" />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <SheetClose
+                  render={<Link href="/sign-in" className={signInClass} />}
+                >
+                  Sign In
+                </SheetClose>
+                <SheetClose
+                  render={<Link href="/sign-up" className={getStartedClass} />}
+                >
+                  Get Started
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </SheetClose>
+              </>
+            )}
+          </SheetFooter>
+        )}
       </SheetContent>
     </Sheet>
   );

@@ -62,7 +62,7 @@ export default function RequestRepairSection({
 
   const handleRequestClick = () => {
     if (!isLoggedIn) {
-      router.push(`/login?callbackUrl=/services/${service._id}`);
+      router.push(`/sign-in?callbackUrl=/services/${service._id}`);
     }
   };
 

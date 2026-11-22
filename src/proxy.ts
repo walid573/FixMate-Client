@@ -60,8 +60,24 @@ export async function proxy(request: NextRequest) {
     return redirect("/forbidden");
   }
 
-  // Redirect authenticated users away from auth pages
+  // Redirect authenticated users away from auth pages. If they arrived with a
+  // callbackUrl (e.g. from "Log In to Request Repair" on a service page),
+  // honour it instead of sending them to the role dashboard.
   if (isAuthPage || pathname === "/dashboard") {
+    const callback = request.nextUrl.searchParams.get("callbackUrl");
+    if (
+      isAuthPage &&
+      callback &&
+      callback.startsWith("/") &&
+      !callback.startsWith("//")
+    ) {
+      const callbackRole = Object.entries(ROLE_ROUTES).find(([route]) =>
+        matches(callback, route)
+      )?.[1];
+      if (!callbackRole || callbackRole === role) {
+        return redirect(callback);
+      }
+    }
     return redirect(home);
   }
 

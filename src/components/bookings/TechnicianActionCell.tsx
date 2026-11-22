@@ -2,18 +2,15 @@
 // TechnicianActionCell
 //
 // The action buttons shown on the technician Manage Requests page:
-//   requested      -> Accept + Reject
-//   accepted       -> Start Work
-//   in-progress    -> Mark Completed
-//   completed      -> Edit Amount (only while UNPAID) / nothing once paid
-//   rejected / cancelled -> "—"
+//   requested            -> Accept + Reject
+//   accepted             -> Start Work
+//   in-progress          -> Mark Completed
+//   completed / rejected / cancelled -> "—" (terminal states)
 //
 // Status actions PATCH the same route the customer cancel flow uses
 // (`PATCH /bookings/:id/status`), with `technicianEmail` as the ownership
 // key. The route enforces the transition ladder, so a completed job can
-// never be un-completed. "Edit Amount" (kind: "edit-amount") never changes
-// the status — it PATCHes /bookings/:id/final-amount instead, and only the
-// backend allows it on a completed, not-yet-paid job.
+// never be un-completed.
 // ---------------------------------------------------------------------------
 
 import { Button } from "@/components/ui/button";
@@ -23,20 +20,14 @@ export interface TechnicianAction {
   label: string;
   /** Target status the route will be asked to move the booking to. */
   targetStatus: "accepted" | "in-progress" | "completed" | "rejected";
-  /**
-   * "edit-amount" opens the dialog in edit-price mode (updates the final
-   * amount only, never the status). Anything else is a status transition.
-   */
-  kind?: "status" | "edit-amount";
 }
 
 /**
  * The set of actions the technician may take on a booking right now.
- * Returns null for terminal states — nothing dead is rendered.
+ * Returns an empty list for terminal states — nothing dead is rendered.
  */
 export function technicianActions(booking: {
   status?: string;
-  paymentStatus?: string;
 }): TechnicianAction[] {
   switch (booking.status) {
     case "requested":
@@ -49,18 +40,10 @@ export function technicianActions(booking: {
     case "in-progress":
       return [{ label: "Mark Completed", targetStatus: "completed" }];
     case "completed":
-      // Pay-after-service: until the customer pays, the technician may still
-      // correct the final amount (e.g. a mistyped 0). Once paid it's locked.
-      return booking.paymentStatus === "paid"
-        ? []
-        : [
-            {
-              label: "Edit Amount",
-              targetStatus: "completed",
-              kind: "edit-amount",
-            },
-          ];
+    case "rejected":
+    case "cancelled":
     default:
+      // Terminal states — the payment badge is shown instead of any action.
       return [];
   }
 }

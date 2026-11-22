@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/lib/toast";
 import {
   updateBookingStatus,
-  updateFinalAmount,
   type Booking,
 } from "@/lib/api/bookings";
 import { technicianActions, type TechnicianAction } from "@/components/bookings/TechnicianActionCell";
@@ -39,7 +38,6 @@ export default function TechnicianActionDialog({
   const pushToast = useToast();
 
   const open = Boolean(booking) && Boolean(action);
-  const isEditAmount = action?.kind === "edit-amount";
 
   // Prefill the amount every time the dialog opens. (This used to run only
   // on first mount, so it could carry a stale or empty value.)
@@ -86,26 +84,16 @@ export default function TechnicianActionDialog({
 
     setBusy(true);
     try {
-      if (action.kind === "edit-amount") {
-        // Edit-price mode: amount only, the status never changes.
-        await updateFinalAmount(
-          booking._id,
-          technicianEmail,
-          Number(finalAmount)
-        );
-        pushToast(`Final amount for ${booking.serviceTitle} updated.`, "success");
-      } else {
-        await updateBookingStatus(
-          booking._id,
-          technicianEmail,
-          action.targetStatus,
-          action.targetStatus === "completed" ? Number(finalAmount) : undefined
-        );
-        pushToast(
-          `${booking.serviceTitle} moved to ${action.targetStatus}.`,
-          "success"
-        );
-      }
+      await updateBookingStatus(
+        booking._id,
+        technicianEmail,
+        action.targetStatus,
+        action.targetStatus === "completed" ? Number(finalAmount) : undefined
+      );
+      pushToast(
+        `${booking.serviceTitle} moved to ${action.targetStatus}.`,
+        "success"
+      );
       onConfirmed();
       onClose();
     } catch (err) {
@@ -120,12 +108,6 @@ export default function TechnicianActionDialog({
 
   function heading() {
     if (!action) return { title: "", description: "" };
-    if (action.kind === "edit-amount") {
-      return {
-        title: "Edit final amount",
-        description: `Update the final price for ${booking?.serviceTitle}.`,
-      };
-    }
     switch (action.targetStatus) {
       case "accepted":
         return {
@@ -181,18 +163,10 @@ export default function TechnicianActionDialog({
         )}
         <DialogHeader>
           <DialogTitle>
-            {isEditAmount
-              ? "Edit final amount"
-              : isCompleted
-              ? "Mark as completed"
-              : title}
+            {isCompleted ? "Mark as completed" : title}
           </DialogTitle>
           <DialogDescription>
-            {isEditAmount
-              ? "Update the final price for this job."
-              : isCompleted
-              ? "Enter the final amount for this job."
-              : description}
+            {isCompleted ? "Enter the final amount for this job." : description}
           </DialogDescription>
         </DialogHeader>
 
@@ -235,9 +209,7 @@ export default function TechnicianActionDialog({
                 </p>
               ) : (
                 <p className="text-[11px] text-muted-foreground">
-                  {isEditAmount
-                    ? "The amount can be changed until the customer pays."
-                    : "Pre-filled with the base price. Must be greater than $0."}
+                  Pre-filled with the base price. Must be greater than $0.
                 </p>
               )}
             </div>
@@ -259,11 +231,7 @@ export default function TechnicianActionDialog({
             }
           >
             {busy
-              ? isEditAmount
-                ? "Saving…"
-                : "Updating…"
-              : isEditAmount
-              ? "Save amount"
+              ? "Updating…"
               : isCompleted
               ? "Mark completed"
               : action?.label}

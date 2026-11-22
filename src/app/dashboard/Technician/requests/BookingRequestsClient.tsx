@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Info } from "lucide-react";
+import { Search, Info, ClipboardList } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -145,8 +147,28 @@ export default function BookingRequestsClient({
 
         <CardContent className="p-0">
           {filtered.length === 0 ? (
-            <div className="py-16 text-center text-sm text-muted-foreground">
-              No bookings found.
+            <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+              <span className="flex size-12 items-center justify-center rounded-full bg-brand-orange/15 text-brand-orange">
+                <ClipboardList className="size-6" />
+              </span>
+              <div>
+                <p className="font-semibold text-brand-navy">
+                  {bookings.length === 0
+                    ? "No requests yet"
+                    : "No requests match your filter"}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {bookings.length === 0
+                    ? "New customer requests will appear here as soon as they're booked."
+                    : "Try another status tab or clear your search."}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                render={<Link href="/dashboard/technician/my-services" />}
+              >
+                View My Services
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">

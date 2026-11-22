@@ -11,6 +11,10 @@ import { BadgePill } from "@/components/bookings/BookingActionCell";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
 import { statusBadge, paymentBadge } from "@/lib/booking-status";
 import type { Service } from "@/lib/api/services";
+import {
+  BookingStatusDonut,
+  RevenueBarChart,
+} from "@/components/charts/DashboardCharts";
 import PendingServicesCard from "./PendingServicesCard";
 
 // ---------------------------------------------------------------------------
@@ -141,15 +145,39 @@ export default async function AdminPage() {
       </h1>
 
       {/* ---- Stats ---- */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <StatCard title="Total Users" value={users.length.toLocaleString()} />
         <StatCard title="Technicians" value={technicians.toLocaleString()} />
+        <StatCard
+          title="Pending Services"
+          value={pendingServices.length.toLocaleString()}
+        />
         <StatCard title="Services" value={services.length.toLocaleString()} />
         <StatCard
           title="Total Bookings"
           value={bookings.length.toLocaleString()}
         />
         <StatCard title="Stripe Revenue" value={usd(revenue)} />
+      </div>
+
+      {/* ---- Charts: quick data visualization ---- */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="rounded-xl">
+          <CardHeader>
+            <CardTitle>Revenue · last 6 months</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RevenueBarChart payments={paidPayments} />
+          </CardContent>
+        </Card>
+        <Card className="rounded-xl">
+          <CardHeader>
+            <CardTitle>Bookings by status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BookingStatusDonut bookings={bookings} />
+          </CardContent>
+        </Card>
       </div>
 
       {/* ---- Pending service approvals (working buttons) ---- */}

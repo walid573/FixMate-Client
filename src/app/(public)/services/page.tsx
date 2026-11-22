@@ -4,9 +4,8 @@ import { Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getServices } from "@/lib/api/services";
-
-
+import { SERVICE_CATEGORIES } from "@/constants/categories";
+import { getServiceCategories, getServicesByQuery } from "@/lib/api/services";
 
 interface PageProps {
   searchParams: Promise<{
@@ -17,97 +16,48 @@ interface PageProps {
   }>;
 }
 
+const SORTS = ["newest", "price-asc", "price-desc"] as const;
+type Sort = (typeof SORTS)[number];
+
 export default async function ServicesPage({ searchParams }: PageProps) {
-  const resolvedParams = await searchParams;
-  const search = resolvedParams.search || "";
-  const category = resolvedParams.category || "all";
-  const mode = resolvedParams.mode || "all";
-  const sort = resolvedParams.sort || "newest";
+  const resolved = await searchParams;
+  const search = resolved.search || "";
+  const category = resolved.category || "all";
+  const mode = resolved.mode || "all";
+  const sort: Sort = SORTS.includes(resolved.sort as Sort)
+    ? (resolved.sort as Sort)
+    : "newest";
 
-  // Fetch services from http://localhost:8000/services
+  // Everything below is executed by MongoDB in GET /services. The URL is the
+  // single source of truth, so filters survive a reload and a home-page
+  // category card (?category=AC) arrives here already applied.
+  const [services, categoryList] = await Promise.all([
+    getServicesByQuery({
+      search: search || undefined,
+      category: category !== "all" ? category : undefined,
+      mode: mode !== "all" ? mode : undefined,
+      sort,
+      approvalStatus: "approved",
+      isAvailable: true,
+    }),
+    getServiceCategories(),
+  ]);
 
-  const services = await getServices()
+  // Keep the dropdown stable while filters are applied: combine the API list
+  // with the known categories and whatever category is currently selected.
+  const categories = [
+    ...new Set([
+      ...SERVICE_CATEGORIES.map((c) => c.label),
+      ...categoryList,
+      ...(category !== "all" ? [category] : []),
+    ]),
+  ].sort((a, b) => a.localeCompare(b));
 
-  
-  const normalizeText = (value: string | undefined | null) =>
-  (value ?? "")
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .trim()
-    .replace(/\s+/g, " ");
-
-const matchesSearch = (service: (typeof services)[number], query: string) => {
-  if (!query.trim()) return true;
-
-  const searchableText = normalizeText(
-    [
-      service.title,
-      service.description,
-      service.category,
-      service.technicianName,
-      service.serviceArea,
-      service.serviceMode,
-    ].join(" ")
-  );
-
-  const words = searchableText.split(" ");
-  const searchWords = normalizeText(query).split(" ").filter(Boolean);
-
-  return searchWords.every((searchWord) => {
-    // AC should match AC, Air Conditioner, or Air Conditioning
-    if (searchWord === "ac") {
-      return (
-        words.includes("ac") ||
-        searchableText.includes("air conditioner") ||
-        searchableText.includes("air conditioning")
-      );
-    }
-
-    // Match complete words or word beginnings
-    return words.some((word) => word.startsWith(searchWord));
-  });
-};
-
-  // Filter & sort on the server
-  const filtered = services.filter((s) => {
-    // Only approved and available services
-    if (s.approvalStatus !== "approved") return false;
-    if (s.isAvailable !== true) return false;
-
-    // Improved search
-    if (!matchesSearch(s, search)) return false;
-
-    // Category filter
-    if (
-      category !== "all" &&
-      normalizeText(s.category) !== normalizeText(category)
-    ) {
-      return false;
-    }
-
-    // Service mode filter
-    if (
-      mode !== "all" &&
-      normalizeText(s.serviceMode) !== normalizeText(mode)
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // Sort
-  filtered.sort((a, b) => {
-    if (sort === "price-asc") return a.basePrice - b.basePrice;
-    if (sort === "price-desc") return b.basePrice - a.basePrice;
-    // default newest (by _id / date approximation)
-    return b._id.localeCompare(a._id);
-  });
-
-  const categories = Array.from(new Set(services.map((s) => s.category)));
+  const hasFilters =
+    Boolean(search) || category !== "all" || mode !== "all" || sort !== "newest";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-brand-navy">
@@ -118,20 +68,21 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
         </p>
       </div>
 
-      {/* Search & Filter Bar (Server-driven via form navigation) */}
-      <form method="GET" className="grid grid-cols-1 gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-2 lg:grid-cols-5">
-        {/* Search input */}
+      {/* Search & Filter Bar — a plain GET form, so all state lives in the URL */}
+      <form
+        method="GET"
+        className="grid grid-cols-1 gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-2 lg:grid-cols-5"
+      >
         <div className="relative lg:col-span-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <Input
             name="search"
             defaultValue={search}
-            placeholder="Search service titles..."
+            placeholder="Search by title or category..."
             className="pl-9 h-10"
           />
         </div>
 
-        {/* Category filter */}
         <select
           name="category"
           defaultValue={category}
@@ -145,7 +96,6 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
           ))}
         </select>
 
-        {/* Service mode filter */}
         <select
           name="mode"
           defaultValue={mode}
@@ -156,7 +106,6 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
           <option value="Shop Drop-off">Shop Drop-off</option>
         </select>
 
-        {/* Sort */}
         <select
           name="sort"
           defaultValue={sort}
@@ -167,21 +116,31 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
           <option value="price-desc">Price: High to Low</option>
         </select>
 
-        {/* Submit / Clear filters */}
         <div className="flex gap-2">
-          <Button type="submit" className="flex-1 h-10 bg-brand-orange text-brand-navy hover:bg-brand-orange/90 font-semibold">
+          <Button
+            type="submit"
+            className="flex-1 h-10 bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/90"
+          >
             Filter
           </Button>
-          {(search || category !== "all" || mode !== "all" || sort !== "newest") && (
-            <Button variant="outline" className="h-10 px-3" render={<Link href="/services" />}>
+          {hasFilters && (
+            <Button
+              variant="outline"
+              className="h-10 px-3"
+              render={<Link href="/services" />}
+            >
               <X className="size-4" />
             </Button>
           )}
         </div>
       </form>
 
+      <p className="text-sm text-muted-foreground">
+        {services.length} {services.length === 1 ? "service" : "services"} found
+      </p>
+
       {/* Services Grid */}
-      {filtered.length === 0 ? (
+      {services.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 py-16 text-center">
           <p className="text-base font-semibold text-brand-navy">No services found</p>
           <p className="mt-1 text-sm text-slate-500">
@@ -193,14 +152,14 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((service) => (
+          {services.map((service) => (
             <div
               key={service._id}
               className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm transition hover:shadow-md"
             >
-              {/* Image banner — light blue-gray placeholder matching the mock */}
               <div className="flex h-48 w-full items-center justify-center rounded-t-2xl bg-[#e8eef5]">
                 {service.image && service.image.startsWith("http") ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={service.image}
                     alt={service.title}
@@ -214,7 +173,6 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
               </div>
 
               <div className="p-5">
-                {/* Category badge + service mode on the same row */}
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                     {service.category}
@@ -237,7 +195,7 @@ const matchesSearch = (service: (typeof services)[number], query: string) => {
                 </p>
 
                 <Button
-                  className="mt-4 w-full rounded-xl bg-brand-orange text-brand-navy hover:bg-brand-orange/90 font-semibold h-10 shadow-sm"
+                  className="mt-4 h-10 w-full rounded-xl bg-brand-orange font-semibold text-brand-navy shadow-sm hover:bg-brand-orange/90"
                   render={<Link href={`/services/${service._id}`} />}
                 >
                   View Details

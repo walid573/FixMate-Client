@@ -140,6 +140,11 @@ export default function AddServicePage() {
             return;
         }
 
+        if (!image) {
+            pushToast("Please upload a service image.", "error");
+            return;
+        }
+
         if (description.length < 30 || description.length > 500) {
             pushToast("Description must be between 30 and 500 characters.", "error");
             return;

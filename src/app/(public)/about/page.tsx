@@ -370,7 +370,7 @@ export default function About() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Link href="/" className={exploreClass}>
+              <Link href="/services" className={exploreClass}>
                 Explore Services
                 <span className="flex size-7 items-center justify-center rounded-full bg-brand-navy text-white">
                   <ArrowRight className="size-4" />

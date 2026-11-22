@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { getSafeCallbackUrl, withCallbackUrl } from "@/lib/callback-url";
 import { useToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 
@@ -45,15 +46,16 @@ export default function LoginPage() {
       "success"
     );
     
-    const dashboardPath = `/`;
-    router.push(dashboardPath);
+    // Return to the page the user came from (e.g. a service detail page they
+    // tried to book before logging in), never to an external URL.
+    router.push(getSafeCallbackUrl());
     router.refresh();
   };
 
   const handleGoogleLogin = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/",
+      callbackURL: getSafeCallbackUrl(),
     });
   };
 
@@ -208,7 +210,7 @@ export default function LoginPage() {
         <p className="mt-6 text-center text-sm text-slate-500">
           New to FixMate?{" "}
           <Link
-            href="/sign-up"
+            href={withCallbackUrl("/sign-up", getSafeCallbackUrl())}
             className="font-semibold text-brand-orange-ink hover:underline"
           >
             Register

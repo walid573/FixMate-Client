@@ -160,27 +160,25 @@ export default function ManageServicesClient({ initialServices }: { initialServi
                   <td className="px-6 py-4 text-slate-500">{formatDate(s.createdAt)}</td>
                   <td className="px-6 py-4"><BadgePill badge={STATUS_BADGES[s.approvalStatus] ?? STATUS_BADGES.pending} /></td>
                   <td className="px-6 py-4 space-x-2">
-                    {s.approvalStatus === "pending" ? (
-                      <>
-                        <Button
-                          size="sm"
-                          disabled={busyId === s._id}
-                          className="bg-brand-orange text-brand-navy hover:bg-brand-orange/90"
-                          onClick={() => handleReview(s, "approved")}
-                        >
-                          {busyId === s._id ? "Working…" : "Approve"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={busyId === s._id}
-                          className="text-red-600 hover:text-red-700"
-                          onClick={() => handleReview(s, "rejected")}
-                        >
-                          Reject
-                        </Button>
-                      </>
-                    ) : <span className="text-xs text-slate-400 italic">Reviewed</span>}
+                    {/* Any service can be (re)approved or (re)rejected; the
+                        button for its current status is simply disabled. */}
+                    <Button
+                      size="sm"
+                      disabled={busyId === s._id || s.approvalStatus === "approved"}
+                      className="bg-brand-orange text-brand-navy hover:bg-brand-orange/90"
+                      onClick={() => handleReview(s, "approved")}
+                    >
+                      {busyId === s._id ? "Working…" : "Approve"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busyId === s._id || s.approvalStatus === "rejected"}
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => handleReview(s, "rejected")}
+                    >
+                      Reject
+                    </Button>
                   </td>
                 </tr>
               ))}

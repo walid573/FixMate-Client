@@ -34,7 +34,7 @@ export function CategoryGrid() {
           {SERVICE_CATEGORIES.map(({ label, slug, icon: Icon }) => (
             <li key={slug}>
               <Link
-                href={`/services?category=${slug}`}
+                href={`/services?category=${encodeURIComponent(label)}`}
                 className="group flex h-full flex-col justify-between gap-8 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-orange"
               >
                 <span className="flex items-start justify-between">

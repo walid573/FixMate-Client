@@ -2,10 +2,47 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { authFetch } from "@/lib/Session/server";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 export type UserRole = "customer" | "technician" | "admin";
+
+export interface ProfileUpdate {
+  name?: string;
+  phone?: string;
+  area?: string;
+  bio?: string;
+  image?: string | null;
+}
+
+// PATCH /users/profile is protected by verifyToken on the server. The token is
+// added here (server-side); the endpoint never accepts a userId from the client.
+export async function updateOwnProfile(
+  payload: ProfileUpdate
+): Promise<{ ok: boolean; message: string }> {
+  try {
+    const res = await authFetch("/users/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return {
+        ok: false,
+        message: (data as { message?: string }).message || "Failed to update profile.",
+      };
+    }
+
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, message: "Profile updated successfully." };
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return { ok: false, message: "Could not save your profile." };
+  }
+}
 
 interface UpdateUserRoleResult {
   ok: boolean;

@@ -21,6 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { getSafeCallbackUrl } from "@/lib/callback-url";
 import { useToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import { uploadImage } from "@/lib/upload-image";
@@ -134,9 +135,8 @@ export default function RegisterPage() {
       return;
     }
 
-    pushToast("Account created successfully!", "success");   
-    const dashboardPath = `/`;
-    router.push(dashboardPath);
+    pushToast("Account created successfully!", "success");
+    router.push(getSafeCallbackUrl());
     router.refresh();
     console.log(resData);
   };
@@ -145,9 +145,10 @@ export default function RegisterPage() {
     // Store selected role in cookie before redirecting to Google
     document.cookie = `signup_role=${role}; path=/; max-age=300`; // 5 minutes
     
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/", // Will be redirected to home after Google auth
+      // Preserve the page the user was on when they were asked to log in.
+      callbackURL: getSafeCallbackUrl(),
     });
   };
 

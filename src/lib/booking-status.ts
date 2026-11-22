@@ -20,14 +20,20 @@ export interface Badge {
 }
 
 // Brand tokens only — no local hex values.
+// One shared palette for EVERY dashboard (admin / customer / technician).
+// Requested = blue, Accepted = indigo, In Progress = amber,
+// Completed = green, Rejected = red, Cancelled = gray.
 const STATUS_META: Record<string, Badge> = {
-  requested: { label: "Requested", className: "bg-amber-100 text-amber-700" },
-  accepted: {
-    label: "Accepted",
-    className: "bg-brand-orange/15 text-brand-orange-ink",
+  requested: { label: "Requested", className: "bg-blue-100 text-blue-700" },
+  accepted: { label: "Accepted", className: "bg-indigo-100 text-indigo-700" },
+  "in-progress": {
+    label: "In Progress",
+    className: "bg-amber-100 text-amber-700",
   },
-  "in-progress": { label: "In Progress", className: "bg-sky-100 text-sky-700" },
-  completed: { label: "Completed", className: "bg-brand-navy/10 text-brand-navy" },
+  completed: {
+    label: "Completed",
+    className: "bg-emerald-100 text-emerald-700",
+  },
   rejected: { label: "Rejected", className: "bg-red-100 text-red-600" },
   cancelled: { label: "Cancelled", className: "bg-slate-100 text-slate-600" },
 };

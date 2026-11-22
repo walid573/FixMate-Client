@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -377,10 +379,34 @@ export default function BookingsClient({ bookings }: { bookings: Booking[] }) {
 
       {filtered.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-sm text-muted-foreground">
-            {bookings.length === 0
-              ? "No bookings yet. Request a repair to get started."
-              : "No bookings match your search."}
+          <CardContent className="flex flex-col items-center gap-3 py-14 text-center">
+            <span className="flex size-12 items-center justify-center rounded-full bg-brand-orange/15 text-brand-orange">
+              <Wrench className="size-6" />
+            </span>
+            <div>
+              <p className="font-semibold text-brand-navy">
+                {bookings.length === 0
+                  ? "No bookings yet"
+                  : "No bookings match your search"}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {bookings.length === 0
+                  ? "Browse our services and request your first repair."
+                  : "Try a different search term."}
+              </p>
+            </div>
+            {bookings.length === 0 ? (
+              <Button
+                className="bg-brand-orange font-semibold text-brand-navy hover:bg-brand-orange/90"
+                render={<Link href="/services" />}
+              >
+                Browse Services
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => setQuery("")}>
+                Clear search
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (

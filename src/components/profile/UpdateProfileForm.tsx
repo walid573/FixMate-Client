@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Camera, Loader2 } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
+import { updateOwnProfile } from "@/lib/actions/user";
 import { useToast } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
@@ -151,6 +152,22 @@ export default function UpdateProfileForm({ user }: UpdateProfileFormProps) {
 
     try {
       setSaving(true);
+
+      // The protected Express endpoint is the source of truth for the extended
+      // profile fields. authClient.updateUser then refreshes the BetterAuth
+      // session atom, so the navbar avatar/name update without a logout.
+      const saved = await updateOwnProfile({
+        name: trimmedName,
+        phone: trimmedPhone,
+        area: area.trim(),
+        bio: bio.trim(),
+        image,
+      });
+
+      if (!saved.ok) {
+        throw new Error(saved.message);
+      }
+
       const { error } = await authClient.updateUser({
         name: trimmedName,
         phone: trimmedPhone,

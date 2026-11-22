@@ -59,28 +59,63 @@ export const getFeaturedServices = async (): Promise<Service[]> => {
   }
 };
 
+export interface ServiceFilters {
+  technicianEmail?: string;
+  technicianId?: string;
+  search?: string;
+  category?: string;
+  mode?: string;
+  sort?: "newest" | "price-asc" | "price-desc";
+  approvalStatus?: string;
+  isAvailable?: boolean;
+}
+
 // ---------------------------------------------------------------------------
-// Fetch services (server-side). Optionally filtered by technicianEmail so the
-// technician dashboard only shows the services that belong to them.
+// Fetch services. ALL searching, filtering and sorting is done by MongoDB on
+// the server — the URL params below are passed straight to GET /services and
+// no .filter()/.sort() is applied to the result here.
 // ---------------------------------------------------------------------------
-export const getServices = async (
-  technicianEmail?: string,
-  technicianId?: string
+export const getServicesByQuery = async (
+  filters: ServiceFilters = {}
 ): Promise<Service[]> => {
   try {
     let url = `${process.env.BASE_URL}/services`;
     const params = new URLSearchParams();
-    if (technicianEmail) params.set("technicianEmail", technicianEmail);
-    if (technicianId) params.set("technicianId", technicianId);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== "") {
+        params.set(key, String(value));
+      }
+    }
     if (params.toString()) url += `?${params.toString()}`;
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) {
       throw new Error("Failed to fetch services");
     }
-    const services: Service[] = await res.json();
-    return services;
+    return (await res.json()) as Service[];
   } catch (error) {
     console.error("Failed to fetch services:", error);
+    return [];
+  }
+};
+
+// Existing callers (technician dashboards) keep the old signature.
+export const getServices = async (
+  technicianEmail?: string,
+  technicianId?: string
+): Promise<Service[]> =>
+  getServicesByQuery({ technicianEmail, technicianId });
+
+// Distinct categories of bookable services — used to populate the dropdown
+// on /services without fetching the whole catalogue on every keystroke.
+export const getServiceCategories = async (): Promise<string[]> => {
+  try {
+    const res = await fetch(`${process.env.BASE_URL}/services/categories`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch categories");
+    return (await res.json()) as string[];
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
     return [];
   }
 };
@@ -163,13 +198,16 @@ export const updateService = async (
     >
   >
 ): Promise<Service> => {
-  const res = await authFetch(`${process.env.NEXT_PUBLIC_BASE_URL}/services`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id, technicianId, ...updates }),
-  });
+  const res = await authFetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/services/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ technicianId, ...updates }),
+    }
+  );
 
   const data = await res.json().catch(() => ({}));
 

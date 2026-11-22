@@ -1,10 +1,16 @@
 import React from "react";
 
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getBookings } from "@/lib/api/bookings";
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
+import { BookingStatusDonut } from "@/components/charts/DashboardCharts";
 import RecentBookings from "./RecentBookings";
 
 export interface Stat {
@@ -145,6 +151,15 @@ const CustomerPage = async () => {
         </Card>
       ) : null}
 
+      {/* ---- Charts: quick data visualization ---- */}
+      <Card className="rounded-xl">
+        <CardHeader>
+          <CardTitle>My bookings by status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BookingStatusDonut bookings={rawBookings} />
+        </CardContent>
+      </Card>
 
       <RecentBookings bookings={rawBookings} />
     </div>

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 
 import DashboardBreadcrumb from "@/components/layout/DashboardBreadcrumb";
+import { ServiceJobsChart } from "@/components/charts/DashboardCharts";
 
 import { auth } from "@/lib/auth";
 import { getBookings } from "@/lib/api/bookings";
@@ -37,6 +38,9 @@ export default async function TechnicianPage() {
 
   // ---- Stats computed from real bookings ----
   const totalServices = services.length;
+  const approvedServices = services.filter(
+    (s) => s.approvalStatus === "approved"
+  ).length;
   const pendingRequests = bookings.filter((b) => b.status === "requested").length;
   const activeRepairs = bookings.filter(
     (b) => b.status === "accepted" || b.status === "in-progress"
@@ -56,7 +60,6 @@ export default async function TechnicianPage() {
   const servicePerformance = Array.from(performanceMap.values()).sort(
     (a, b) => b.jobs - a.jobs
   );
-  const maxJobs = servicePerformance[0]?.jobs || 1;
 
   return (
     <div className="space-y-6 w-full min-w-0 mb-20">
@@ -69,11 +72,17 @@ export default async function TechnicianPage() {
         Technician Overview
       </h1>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <Card className="rounded-xl p-4">
           <p className="text-xs font-medium text-muted-foreground">Total Services</p>
           <p className="mt-2 text-2xl font-bold text-brand-navy">
             {totalServices}
+          </p>
+        </Card>
+        <Card className="rounded-xl p-4">
+          <p className="text-xs font-medium text-muted-foreground">Approved Services</p>
+          <p className="mt-2 text-2xl font-bold text-brand-navy">
+            {approvedServices}
           </p>
         </Card>
         <Card className="rounded-xl p-4">
@@ -123,21 +132,8 @@ export default async function TechnicianPage() {
           <CardHeader>
             <CardTitle>Service Performance</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-5">
-            {servicePerformance.map((item) => (
-              <div key={item.title}>
-                <div className="mb-2 flex items-center justify-between text-sm">
-                  <span className="text-brand-navy">{item.title}</span>
-                  <span className="font-medium">{item.jobs} Jobs</span>
-                </div>
-                <div className="h-2 rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-brand-orange"
-                    style={{ width: `${(item.jobs / maxJobs) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+          <CardContent>
+            <ServiceJobsChart data={servicePerformance} />
           </CardContent>
         </Card>
 

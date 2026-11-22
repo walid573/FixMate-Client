@@ -45,13 +45,13 @@ export const getBookings = async (
   technicianEmail?: string
 ): Promise<Booking[]> => {
   try {
-    const query = email
-      ? `?email=${encodeURIComponent(email)}`
-      : technicianEmail
-      ? `?technicianEmail=${encodeURIComponent(technicianEmail)}`
-      : "";
+    // Dedicated, role-protected routes derive the identity from the JWT, so
+    // changing the email in a URL can never expose another user's bookings.
+    const path = technicianEmail
+      ? "/bookings/technician"
+      : "/bookings/my";
 
-    const res = await authFetch(`/bookings${query}`);
+    const res = await authFetch(path);
 
     if (!res.ok) {
       throw new Error(`Failed to fetch bookings (HTTP ${res.status} from ${res.url})`);
@@ -95,16 +95,15 @@ export const cancelBooking = async (
   bookingId: string,
   customerEmail: string
 ): Promise<void> => {
-  const res = await authFetch(
-    `/bookings/${bookingId}/status`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: "cancelled", customerEmail }),
-    }
-  );
+  // The protected customer-only endpoint derives the email from the session;
+  // the argument is kept for backwards compatibility with existing callers.
+  void customerEmail;
+  const res = await authFetch(`/bookings/${bookingId}/cancel`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   const data = await res.json().catch(() => ({}));
 
@@ -154,34 +153,6 @@ export const updateBookingStatus = async (
   if (!res.ok) {
     throw new Error(
       (data as { message?: string }).message || "Failed to update the booking."
-    );
-  }
-
-  revalidatePath("/dashboard", "layout");
-};
-
-
-export const updateFinalAmount = async (
-  bookingId: string,
-  technicianEmail: string,
-  finalAmount: number
-): Promise<void> => {
-  const res = await authFetch(
-    `/bookings/${bookingId}/final-amount`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ technicianEmail, finalAmount }),
-    }
-  );
-
-  const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    throw new Error(
-      (data as { message?: string }).message || "Failed to update the amount."
     );
   }
 

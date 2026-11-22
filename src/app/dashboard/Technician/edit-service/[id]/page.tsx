@@ -32,7 +32,17 @@ export default async function EditServicePage({ params }: PageProps) {
   }
 
 
-  if (service.technicianId !== session.user.id) {
+  // Match the ownership rules used by PATCH/DELETE /services and the My
+  // Services list: a technician owns a service by id OR by email. Older
+  // services may only carry technicianEmail (no technicianId), so an id-only
+  // check here would 404 on a service the technician can actually edit.
+  const owns =
+    service.technicianId === session.user.id ||
+    (service.technicianEmail &&
+      String(service.technicianEmail).toLowerCase() ===
+        String(session.user.email).toLowerCase());
+
+  if (!owns) {
     notFound();
   }
 

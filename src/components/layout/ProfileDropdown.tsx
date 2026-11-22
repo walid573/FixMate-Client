@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard, User, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { useToast } from "@/lib/toast";
 import Image from "next/image";
 
 
@@ -46,6 +47,7 @@ type Session = typeof authClient.$Infer.Session;
 export default function ProfileDropdown({ session }: { session: Session }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pushToast = useToast();
 
   if (!session?.user) return null;
 
@@ -60,6 +62,7 @@ export default function ProfileDropdown({ session }: { session: Session }) {
 
   const handleSignOut = async () => {
     await authClient.signOut();
+    pushToast("You have been signed out.", "success");
     router.push("/sign-in");
     router.refresh();
   };
@@ -138,7 +141,7 @@ export default function ProfileDropdown({ session }: { session: Session }) {
               <div className="mx-4 border-t border-white/10" />
 
               <Link
-                href={`/dashboard/${session.user.role}/profile`}
+                href="/dashboard/profile"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 transition hover:bg-white/5"
               >
