@@ -11,16 +11,23 @@ export interface Crumb {
 interface DashboardBreadcrumbProps {
   /** Trail from the dashboard root to the current page. */
   items: Crumb[];
-  /** Navy pill on the right — the signed-in role, e.g. "Customer". */
+  /** Role pill on the right — e.g. "Customer", "Technician", "Admin". */
   badge?: string;
   className?: string;
 }
+
+// Role-coloured pill styles so the three stakeholders are easy to tell apart.
+const ROLE_BADGE_STYLES: Record<string, string> = {
+  customer: "bg-blue-50 text-blue-700 ring-blue-200",
+  technician: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  admin: "bg-brand-peach text-brand-orange-ink ring-brand-orange/30",
+};
 
 // ---------------------------------------------------------------------------
 // Page-level breadcrumb used across the dashboard:
 //   Customer / My Bookings                      [ Customer ]
 // Parent crumbs are muted links, the current page is bold, and an optional
-// navy role badge sits on the far right.
+// colour-coded role badge sits on the far right.
 // ---------------------------------------------------------------------------
 export default function DashboardBreadcrumb({
   items,
@@ -72,7 +79,13 @@ export default function DashboardBreadcrumb({
       </ol>
 
       {badge ? (
-        <span className="inline-flex items-center rounded-full bg-brand-navy px-4 py-1.5 text-xs font-semibold text-white">
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full px-4 py-1.5 text-xs font-semibold ring-1 ring-inset",
+            ROLE_BADGE_STYLES[badge.toLowerCase()] ??
+              "bg-brand-navy text-white ring-transparent"
+          )}
+        >
           {badge}
         </span>
       ) : null}

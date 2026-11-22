@@ -134,6 +134,8 @@ export default function ManageServicesClient({ initialServices }: { initialServi
 
       <Card className="rounded-xl border-slate-200 shadow-sm">
         <CardContent className="p-0">
+          {/* Table on tablet/desktop */}
+          <div className="hidden w-full overflow-x-auto md:block">
           <table className="w-full text-sm">
             <thead className="bg-slate-50/50">
               <tr className="border-b text-left text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
@@ -146,6 +148,16 @@ export default function ManageServicesClient({ initialServices }: { initialServi
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
+              {visible.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-sm text-slate-500"
+                  >
+                    No services match this filter.
+                  </td>
+                </tr>
+              )}
               {visible.map((s) => (
                 <tr key={s._id} className="hover:bg-slate-50/30">
                   <td className="px-6 py-4">
@@ -184,6 +196,78 @@ export default function ManageServicesClient({ initialServices }: { initialServi
               ))}
             </tbody>
           </table>
+          </div>
+
+          {/* Cards on phones — nothing overflows sideways */}
+          <div className="divide-y divide-slate-100 md:hidden">
+            {visible.length === 0 ? (
+              <p className="p-6 text-center text-sm text-slate-500">
+                No services match this filter.
+              </p>
+            ) : (
+              visible.map((s) => (
+                <div key={s._id} className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="break-words font-semibold text-brand-navy">
+                        {s.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {s.category} • {s.serviceMode}
+                      </p>
+                    </div>
+                    <span className="shrink-0 font-bold text-brand-navy">
+                      ${s.basePrice}
+                    </span>
+                  </div>
+
+                  <div className="text-xs">
+                    <p className="font-medium text-brand-navy">
+                      {s.technicianName}
+                    </p>
+                    <p className="break-all text-slate-400">
+                      {s.technicianEmail}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <BadgePill
+                      badge={
+                        STATUS_BADGES[s.approvalStatus] ?? STATUS_BADGES.pending
+                      }
+                    />
+                    <span className="text-xs text-slate-500">
+                      {formatDate(s.createdAt)}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      disabled={
+                        busyId === s._id || s.approvalStatus === "approved"
+                      }
+                      className="flex-1 bg-brand-orange text-brand-navy hover:bg-brand-orange/90"
+                      onClick={() => handleReview(s, "approved")}
+                    >
+                      {busyId === s._id ? "Working…" : "Approve"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={
+                        busyId === s._id || s.approvalStatus === "rejected"
+                      }
+                      className="flex-1 text-red-600 hover:text-red-700"
+                      onClick={() => handleReview(s, "rejected")}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

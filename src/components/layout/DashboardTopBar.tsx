@@ -5,16 +5,9 @@ import { Home } from "lucide-react";
 
 import { useSessionClient } from "@/lib/Session/client";
 
-const ROLE_LABELS: Record<string, string> = {
-  customer: "Customer",
-  technician: "Technician",
-  admin: "Admin",
-};
-
 export function DashboardTopBar() {
   const { data: session } = useSessionClient();
   const user = session?.user;
-  const role = ROLE_LABELS[String(user?.role ?? "").toLowerCase()] ?? "User";
   const initial = user?.name?.trim().charAt(0).toUpperCase() || "U";
 
   return (
@@ -47,10 +40,6 @@ export function DashboardTopBar() {
           </p>
           <p className="text-[11px] text-slate-500">{user?.email || ""}</p>
         </div>
-
-        <span className="rounded-full bg-brand-peach px-2.5 py-1 text-[11px] font-bold text-brand-orange-ink">
-          {role}
-        </span>
       </div>
     </div>
   );
